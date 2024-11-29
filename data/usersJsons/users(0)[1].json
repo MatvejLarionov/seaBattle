@@ -1,0 +1,17 @@
+[
+    {
+        "login": "asa",
+        "password": "1234",
+        "id": 0
+    },
+    {
+        "login": "GYSKA2",
+        "password": "123",
+        "id": 1
+    },
+    {
+        "login": "GYSKA",
+        "password": "1234",
+        "id": 2
+    }
+]
