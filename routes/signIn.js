@@ -5,5 +5,5 @@ const usersController = require("../controllers/usersController");
 const router = Router()
 
 router.use(express.json())
-router.post('/registration',usersController.registration)
+router.post('/registration', usersController.registration)
 module.exports = router

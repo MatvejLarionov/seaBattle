@@ -3,20 +3,14 @@ import { sendRequest } from "./sendRequest.js";
 const form = document.getElementById('form')
 let signIn = ''
 const switchToForm = () => {
-    registration.style.display = 'none'
-    authorization.style.display = 'none'
+    navContainer.style.display = 'none'
     back.style.display = 'block'
     form.style.display = 'flex'
 }
 const switchFromForm = () => {
-    registration.style.display = 'block'
-    authorization.style.display = 'block'
+    navContainer.style.display = 'flex'
     back.style.display = 'none'
     form.style.display = 'none'
-}
-const showBtn = () => {
-    registration.style.display = 'block'
-    authorization.style.display = 'block'
 }
 registration.addEventListener('click', () => {
     signIn = 'registration'
