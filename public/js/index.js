@@ -7,7 +7,13 @@ const switchToForm = () => {
     back.style.display = 'block'
     form.style.display = 'flex'
 }
+const clearForm = () => {
+    login.value = ''
+    password.value = ''
+    responseText.innerText = ''
+}
 const switchFromForm = () => {
+    clearForm()
     navContainer.style.display = 'flex'
     back.style.display = 'none'
     form.style.display = 'none'
@@ -25,11 +31,21 @@ back.addEventListener('click', () => {
     switchFromForm()
 })
 
-submit.addEventListener('click', (event) => {
+submit.addEventListener('click', async (event) => {
     event.preventDefault()
+    const resTextTemplate = {
+        loginRepeat: "Такой пользователь уже существует"
+    }
     const user = {
         login: login.value,
         password: password.value
     }
-    sendRequest({ method: 'POST', pathname: `signIn/${signIn}`, body: user })
+    const res = await sendRequest({ method: 'POST', pathname: `signIn/${signIn}`, body: user })
+    responseText.innerText = ''
+    if (res.error === null) {
+        window.location='/main'
+    }
+    else {
+        responseText.innerText = resTextTemplate[res.error]
+    }
 })
