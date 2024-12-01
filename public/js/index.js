@@ -34,7 +34,8 @@ back.addEventListener('click', () => {
 submit.addEventListener('click', async (event) => {
     event.preventDefault()
     const resTextTemplate = {
-        loginRepeat: "Такой пользователь уже существует"
+        loginRepeat: "Такой пользователь уже существует",
+        invalidData: "Неправильный логин или пароль"
     }
     const user = {
         login: login.value,
@@ -42,7 +43,8 @@ submit.addEventListener('click', async (event) => {
     }
     const res = await sendRequest({ method: 'POST', pathname: `signIn/${signIn}`, body: user })
     responseText.innerText = ''
-    if (res.error === null) {
+    if (!res.error) {
+        sessionStorage.setItem('id', res.id);
         window.location='/main'
     }
     else {

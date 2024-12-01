@@ -6,4 +6,5 @@ const router = Router()
 
 router.use(express.json())
 router.post('/registration', usersController.registration)
+router.post('/authorization', usersController.authorization)
 module.exports = router
