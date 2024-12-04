@@ -9,6 +9,12 @@ export const sendRequest = async ({ baseUrl, method, pathname, body }) => {
     if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
         config.body = JSON.stringify(body)
     }
-    const data = await fetch(url, config)
-    return await data.json()
+    const text = (await fetch(url, config)).text()
+    try {
+        return JSON.parse(await text)
+    } catch (error) {
+        
+    }
+
+    return text
 }
