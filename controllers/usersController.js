@@ -1,4 +1,5 @@
 const usersData = require("../data/usersData")
+const encryptString = require("../utils/encryptString")
 
 const usersController = {
     registration(req, res) {
@@ -11,7 +12,7 @@ const usersController = {
         else {
             usersData.create(user)
             const userNew = usersData.read({ login: user.login, password: user.password })[0]
-            resObj.id = userNew.id
+            resObj.id = encryptString(userNew.id)
         }
         res.json(resObj)
     },
@@ -23,7 +24,7 @@ const usersController = {
             resObj.error = 'invalidData'
         }
         else {
-            resObj.id = user.id
+            resObj.id = encryptString(user.id)
         }
         res.json(resObj)
     }
