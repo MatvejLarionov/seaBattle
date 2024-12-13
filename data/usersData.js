@@ -38,7 +38,6 @@ const usersData = {
                     break
             }
             user.id = data[i].id + 1
-            console.log(user.id)
             const index = user.id % this.limitInFile
             data.splice(index, 0, user)
             const pathFile = path.join(pathJsons, unfullFile)
