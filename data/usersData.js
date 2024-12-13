@@ -7,7 +7,8 @@ const filesController = {
         return Number(fileName.split(/\(|\)/)[1])
     },
     getFileName(num) {
-        return `users(${num})[1].json`
+        const fileNames = fs.readdirSync(pathJsons)
+        return fileNames.find(item => this.getNumberFile(item) == num)
     },
     lockFile(fileName) {
         const arr = fileName.split(/(\[|\])/)
@@ -69,6 +70,14 @@ const usersData = {
         }
         return data
     },
+    getUserById(id) {
+        const fileNum = Math.floor(id / this.limitInFile)
+        const data = JSON.parse(
+            fs.readFileSync(
+                path.join(pathJsons,
+                    (filesController.getFileName(fileNum)))))
+        return data.find(item => item.id === id)
+    }
     // // update() {
 
     // // },
