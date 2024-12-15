@@ -3,36 +3,66 @@ const fs = require('fs')
 const path = require('path')
 const pathJsons = './data/usersJsons'
 const filesController = {
+    directory: pathJsons,
+    nameFiles: "users",
     getNumberFile(fileName) {
         return Number(fileName.split(/\(|\)/)[1])
+    },
+    getListOfNumOfFile() {
+        return fs.readdirSync(this.directory).map(item => this.getNumberFile(item))
     },
     getFileName(num) {
         const fileNames = fs.readdirSync(pathJsons)
         return fileNames.find(item => this.getNumberFile(item) == num)
     },
-    lockFile(fileName) {
-        const arr = fileName.split(/(\[|\])/)
-        arr[2] = 0
-        const newName = arr.join("")
-        fs.renameSync(path.join(pathJsons, fileName), path.join(pathJsons, newName))
+    getData(num) {
+        const file = this.getFileName(num)
+        const pathName = path.join(this.directory, file)
+        return JSON.parse(fs.readFileSync(pathName, "utf8"))
     },
-    unlockFile(fileName) {
-        const arr = fileName.split(/(\[|\])/)
-        arr[2] = 1
-        const newName = arr.join("")
-        fs.renameSync(path.join(pathJsons, fileName), path.join(pathJsons, newName))
+    setData(num, data) {
+        const file = this.getFileName(num)
+        const pathName = path.join(this.directory, file)
+        fs.writeFileSync(pathName, JSON.stringify(data))
     },
-    isUnLockFile(fileName) {
+    createNewFile(data) {
+        const num = this.getListOfNumOfFile().at(-1) + 1
+        const pathFile = path.join(this.directory, `${this.nameFiles}(${num})[1].json`)
+        let text = ''
+        if (data)
+            text = JSON.stringify(data)
+        fs.writeFileSync(pathFile, text)
+    },
+    lockFile(num) {
+        const oldPath = path.join(this.directory, `${this.nameFiles}(${num})[1].json`)
+        const newPath = path.join(this.directory, `${this.nameFiles}(${num})[0].json`)
+        try {
+            fs.renameSync(oldPath, newPath)
+        } catch (error) {
+
+        }
+    },
+    unlockFile(num) {
+        const oldPath = path.join(this.directory, `${this.nameFiles}(${num})[0].json`)
+        const newPath = path.join(this.directory, `${this.nameFiles}(${num})[1].json`)
+        try {
+            fs.renameSync(oldPath, newPath)
+        } catch (error) {
+
+        }
+    },
+    isUnLockFile(num) {
+        const fileName = this.getFileName(num)
         return fileName.split(/\[|\]/)[1] == 1
     }
 }
 const usersData = {
     limitInFile: 10,
     create(user) {
-        const names = fs.readdirSync(pathJsons)
+        const names = filesController.getListOfNumOfFile()
         const unfullFile = names.find(item => filesController.isUnLockFile(item))
-        if (unfullFile) {
-            const data = JSON.parse(fs.readFileSync(path.join(pathJsons, unfullFile), 'utf8'))
+        if (unfullFile !== undefined) {
+            const data = filesController.getData(unfullFile)
             let i = 0
             for (; i < data.length - 1; i++) {
                 if (data[i + 1].id - data[i].id > 1)
@@ -41,15 +71,13 @@ const usersData = {
             user.id = data[i].id + 1
             const index = user.id % this.limitInFile
             data.splice(index, 0, user)
-            const pathFile = path.join(pathJsons, unfullFile)
-            fs.writeFileSync(pathFile, JSON.stringify(data))
+            filesController.setData(unfullFile, data)
             if (data.length >= this.limitInFile) {
                 filesController.lockFile(unfullFile)
             }
         } else {
             user.id = names.length * this.limitInFile
-            const pathFile = path.join(pathJsons, `users(${names.length})[1].json`)
-            fs.writeFileSync(pathFile, JSON.stringify([user]))
+            filesController.createNewFile([user])
         }
     },
     read(filterParams) {
@@ -72,10 +100,7 @@ const usersData = {
     },
     getUserById(id) {
         const fileNum = Math.floor(id / this.limitInFile)
-        const data = JSON.parse(
-            fs.readFileSync(
-                path.join(pathJsons,
-                    (filesController.getFileName(fileNum)))))
+        const data = filesController.getData(fileNum)
         return data.find(item => item.id === id)
     }
     // // update() {
