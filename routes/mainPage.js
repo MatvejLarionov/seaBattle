@@ -2,7 +2,6 @@ const { Router } = require("express");
 const fs = require('fs')
 const path = require("path");
 const usersData = require("../data/usersData");
-const encryptString = require("../utils/encryptString");
 
 const router = Router()
 
@@ -11,8 +10,7 @@ router.get("/", (req, res) => {
 })
 router.get("/bodyHtml/:id", (req, res) => {
     const id = req.params.id
-    const users = usersData.read()
-    const user = users.find(item => encryptString(item.id) === id)
+    const user = usersData.getUserByEncryptString(id)
     res.render('mainPageBody.hbs', {
         login: user.login
     })

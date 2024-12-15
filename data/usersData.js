@@ -1,6 +1,7 @@
 //в квадратных скобках стоит boolean т.е заполнен ли файл или нет. Файл заполнен если в нем 10 юзеров
 const fs = require('fs')
 const path = require('path')
+const encryptString = require('../utils/encryptString')
 const pathJsons = './data/usersJsons'
 const filesController = {
     directory: pathJsons,
@@ -102,6 +103,20 @@ const usersData = {
         const fileNum = Math.floor(id / this.limitInFile)
         const data = filesController.getData(fileNum)
         return data.find(item => item.id === id)
+    },
+    getLastUserId() {
+        const fileNum = filesController.getListOfNumOfFile().at(-1)
+        return filesController.getData(fileNum).at(-1).id
+    },
+
+
+    getUserByEncryptString(str) {
+        const id = this.getLastUserId()
+        for (let i = 0; i <= id; i++) {
+            if (encryptString(i) === str) {
+                return this.getUserById(i)
+            }
+        }
     }
     // // update() {
 
