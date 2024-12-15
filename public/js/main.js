@@ -5,8 +5,8 @@ const showMainPage = async () => {
         window.location = '/'
         return
     }
-    const bodyHtml = await sendRequest({ method: "GET", pathname: `main/bodyHtml/${userId}` })
-    document.body.innerHTML = bodyHtml
+    const user = await sendRequest({ method: "GET", pathname: `users/${userId}` })
+    login.innerText = user.login
 }
 await showMainPage()
 

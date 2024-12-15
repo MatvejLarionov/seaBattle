@@ -41,11 +41,11 @@ submit.addEventListener('click', async (event) => {
         login: login.value,
         password: password.value
     }
-    const res = await sendRequest({ method: 'POST', pathname: `signIn/${signIn}`, body: user })
+    const res = await sendRequest({ method: 'POST', pathname: `users/${signIn}`, body: user })
     responseText.innerText = ''
     if (!res.error) {
         sessionStorage.setItem('id', res.id);
-        window.location='/main'
+        window.location='/mainPage.html'
     }
     else {
         responseText.innerText = resTextTemplate[res.error]

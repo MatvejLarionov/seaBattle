@@ -3,8 +3,7 @@ const express = require('express')
 const WebSocket = require("ws")
 const app = express()
 
-const signInRouter = require('./routes/signIn')
-const mainPageRouter = require('./routes/mainPage.js')
+const usersRouter = require('./routes/usersRouter.js')
 const port = 3000
 
 const server = http.createServer(app)
@@ -56,8 +55,8 @@ wsServer.on("connection", ws => {
 
 app.set("view engine", "hbs")
 
-app.use('/signIn', signInRouter)
-app.use("/main", mainPageRouter)
+
+app.use('/users', usersRouter)
 app.use(express.static('./public'))
 app.use((req, res) => res.status(404).send("<h2>Not found</h2>"))
 server.listen(port, () => {

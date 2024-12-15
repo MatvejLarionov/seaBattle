@@ -27,6 +27,12 @@ const usersController = {
             resObj.id = encryptString(user.id)
         }
         res.json(resObj)
+    },
+    getUser(req, res) {
+        const id = req.params.id
+        const user = usersData.getUserByEncryptString(id)
+        delete user.password
+        res.send(user)
     }
 }
 module.exports = usersController
