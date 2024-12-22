@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/profile.css">
+    <script src="./js/profile.js" type="module" defer></script>
+    <title>Sea Battle</title>
+</head>
+
+<body>
+    <div class="container">
+        <div id="user">
+            <img src="/img/ava.jpg" alt="ava" id="ava" style="width: 100px;">
+            <p id="login"></p>
+            <p id="password">********</p>
+        </div>
+        <form id="editForm" style="display: none;">
+            <input type="password" placeholder="olgPassword" id="inpOlgPassword">
+            <input type="text" placeholder="login" id="inpLogin" style="display: none;">
+            <input type="password" placeholder="newPassword" id="inpNewPassword" style="display: none;">
+            <button id="submit">submit</button>
+        </form>
+        <p id="error"></p>
+    </div>
+</body>
+
+</html>

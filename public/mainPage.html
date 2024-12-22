@@ -14,14 +14,16 @@
         <header>
             <img src="/img/ava.jpg" alt="ava" class="ava" id="ava">
             <p class="login" id="login"></p>
+            <button id="profile">профиль</button>
         </header>
         <main class="main" id="main">
             <form id="form">
-                <input type="text" placeholder="login" id="inpLogin">
-                <button id="btn">запросить присоедениться</button>
+                <input type="text" placeholder="partner login" id="inpLogin">
+                <button id="btnRequestToJoin">запросить присоедениться</button>
             </form>
             <div id="playContainer" style="display: none;">
                 <p>подключён к <span id="partnerLogin1"></span></p>
+                <p>статус <span id="status"></span></p>
                 <button id="play">играть</button>
                 <button id="disconnection">отключится</button>
             </div>

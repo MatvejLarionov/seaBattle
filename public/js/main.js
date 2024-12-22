@@ -9,6 +9,7 @@ const showMainPage = async () => {
     login.innerText = user.login
 }
 await showMainPage()
+profile.addEventListener("click", () => location = "/profile.html")
 
 
 const webSocket = new WebSocket(`ws://localhost:3000`)
@@ -20,9 +21,9 @@ webSocket.onopen = () => {
     }))
 }
 
-const btn = document.getElementById('btn')
+const btnRequestToJoin = document.getElementById('btnRequestToJoin')
 const inp = document.getElementById('inpLogin')
-btn.addEventListener('click', (event) => {
+btnRequestToJoin.addEventListener('click', (event) => {
     event.preventDefault()
     const sendObj = {
         type: "request to join",

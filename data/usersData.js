@@ -99,28 +99,41 @@ const usersData = {
         }
         return data
     },
-    getUserById(id) {
-        const fileNum = Math.floor(id / this.limitInFile)
-        const data = filesController.getData(fileNum)
-        return data.find(item => item.id === id)
-    },
+
     getLastUserId() {
         const fileNum = filesController.getListOfNumOfFile().at(-1)
         return filesController.getData(fileNum).at(-1).id
     },
 
 
-    getUserByEncryptString(str) {
+    getUserIdByEncryptString(str) {
         const id = this.getLastUserId()
         for (let i = 0; i <= id; i++) {
             if (encryptString(i) === str) {
-                return this.getUserById(i)
+                return i
             }
         }
-    }
-    // // update() {
+    },
 
-    // // },
+    getUserById(id) {
+        id = this.getUserIdByEncryptString(id)
+        const fileNum = Math.floor(id / this.limitInFile)
+        const data = filesController.getData(fileNum)
+        return data.find(item => item.id === id)
+    },
+
+    update(id, newData) {
+        id = this.getUserIdByEncryptString(id)
+        const fileNum = Math.floor(id / this.limitInFile)
+        const data = filesController.getData(fileNum)
+        const index = data.findIndex(item => item.id == id)
+        if (index === -1)
+            return "error";
+        for (const key in newData) {
+            data[index][key] = newData[key]
+        }
+        filesController.setData(fileNum, data)
+    },
     // // delete(id) {
     // //     id = Number(id)
     // //     const pathFile = path.join(pathJsons, `data(${Math.floor(id / 10)}).json`)

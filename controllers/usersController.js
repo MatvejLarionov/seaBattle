@@ -30,9 +30,14 @@ const usersController = {
     },
     getUser(req, res) {
         const id = req.params.id
-        const user = usersData.getUserByEncryptString(id)
+        const user = usersData.getUserById(id)
         delete user.password
-        res.send(user)
+        res.json(user)
+    },
+    patchUser(req, res) {
+        const id = req.params.id
+        const error = usersData.update(id, req.body)
+        res.json({ error: error })
     }
 }
 module.exports = usersController
