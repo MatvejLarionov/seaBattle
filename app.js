@@ -4,6 +4,7 @@ const WebSocket = require("ws")
 const app = express()
 
 const usersRouter = require('./routes/usersRouter.js')
+const usersData = require("./data/usersData.js")
 const port = 3000
 
 const server = http.createServer(app)
@@ -12,8 +13,26 @@ wsServer.on("connection", ws => {
     ws.on("message", message => {
         const ms = JSON.parse(message)
         switch (ms.type) {
-            case "setLogin":
-                ws.user = { login: ms.login }
+            case "authorization":
+                const clients1 = [...wsServer.clients]
+                const userData = usersData.getUserById(ms.id)
+                ws.user = {
+                    login: userData.login,
+                    id: userData.id,
+                    partner: undefined
+                }
+                const partner1 = clients1.find(item => {
+                    if (item.user.partner)
+                        return item.user.partner.user.id == ws.user.id
+                    return false
+                })
+                if (partner1) {
+                    ws.user.partner = partner1
+                    ws.send(JSON.stringify({
+                        type: "acceptJoin",
+                        partnerLogin: ws.user.partner.user.login
+                    }))
+                }
                 break;
             case "request to join":
                 const clients = [...wsServer.clients]
@@ -29,7 +48,7 @@ wsServer.on("connection", ws => {
                     ))
                 }
                 else
-                    ws.send(JSON.stringify({ type: "notFound" }))
+                    ws.send(JSON.stringify({ type: "partnerIsNotFound" }))
                 break;
             case "acceptJoin":
                 ws.user.partner.send(JSON.stringify({

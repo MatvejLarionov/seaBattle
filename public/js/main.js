@@ -16,8 +16,8 @@ const webSocket = new WebSocket(`ws://localhost:3000`)
 
 webSocket.onopen = () => {
     webSocket.send(JSON.stringify({
-        type: "setLogin",
-        login: login.innerText
+        type: "authorization",
+        id: userId
     }))
 }
 
@@ -51,7 +51,7 @@ webSocket.onmessage = (e) => {
             text.innerText = `${inp.value} отклонил запрос`
             dialogResponse.showModal()
             break;
-        case "notFound":
+        case "partnerIsNotFound":
             text.innerText = `${inp.value} не найден`
             dialogResponse.showModal()
             break;
