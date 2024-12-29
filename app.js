@@ -13,18 +13,18 @@ wsServer.on("connection", ws => {
         const ms = JSON.parse(message)
         switch (ms.type) {
             case "setLogin":
-                ws.clientData = { login: ms.login }
+                ws.user = { login: ms.login }
                 break;
             case "request to join":
                 const clients = [...wsServer.clients]
-                const partner = clients.find(item => item.clientData.login === ms.login)
+                const partner = clients.find(item => item.user.login === ms.login)
                 if (partner && partner !== ws) {
-                    ws.clientData.partner = partner
-                    partner.clientData.partner = ws
+                    ws.user.partner = partner
+                    partner.user.partner = ws
                     partner.send(JSON.stringify(
                         {
                             type: "request to join",
-                            partnerLogin: ws.clientData.login
+                            partnerLogin: ws.user.login
                         }
                     ))
                 }
@@ -32,19 +32,19 @@ wsServer.on("connection", ws => {
                     ws.send(JSON.stringify({ type: "notFound" }))
                 break;
             case "acceptJoin":
-                ws.clientData.partner.send(JSON.stringify({
+                ws.user.partner.send(JSON.stringify({
                     type: "acceptJoin",
-                    partnerLogin: ws.clientData.login
+                    partnerLogin: ws.user.login
                 }))
                 ws.send(JSON.stringify({
                     type: "acceptJoin",
-                    partnerLogin: ws.clientData.partner.clientData.login
+                    partnerLogin: ws.user.partner.user.login
                 }))
                 break;
             case "rejectJoin":
-                ws.clientData.partner.send(JSON.stringify({ type: "rejectJoin" }))
-                ws.clientData.partner.clientData.partner = undefined
-                ws.clientData.partner = undefined
+                ws.user.partner.send(JSON.stringify({ type: "rejectJoin" }))
+                ws.user.partner.user.partner = undefined
+                ws.user.partner = undefined
                 break;
 
             default:
