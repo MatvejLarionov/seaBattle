@@ -23,16 +23,21 @@ password.addEventListener("click", () => {
     inpNewPassword.style.display = "block"
 })
 
-submit.addEventListener("click", (event) => {
+submit.addEventListener("click", async (event) => {
     event.preventDefault()
     const user = {
         login: inpLogin.value || undefined,
         oldPassword: inpOlgPassword.value || undefined,
-        newPassword: inpNewPassword.value || undefined
+        password: inpNewPassword.value || undefined
     }
-    if ((user.login || user.newPassword) && user.oldPassword) {
-        const data = sendRequest({ method: "PATCH", pathname: `users/${userId}`, body: user })
-        console.log(data)
+    if ((user.login || user.password) && user.oldPassword) {
+        const data = await sendRequest({ method: "PATCH", pathname: `users/${userId}`, body: user })
+        if (data.error) {
+            error.innerText = data.error
+        }
+        else {
+            error.innerText = "changed successfully"
+        }
     } else {
         error.innerText = "заполните поля"
     }

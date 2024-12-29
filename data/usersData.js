@@ -82,10 +82,15 @@ const usersData = {
         }
     },
     read(filterParams) {
-        const names = fs.readdirSync(pathJsons)
+        const nums = filesController.getListOfNumOfFile()
         let data = []
-        names.forEach((item) => {
-            data = data.concat(JSON.parse(fs.readFileSync(path.join(pathJsons, item))))
+        nums.forEach((item) => {
+            data = data.concat(
+                filesController.getData(item).map(item => {
+                    item.id = encryptString(item.id)
+                    return item
+                })
+            )
         })
 
         if (filterParams) {
@@ -98,6 +103,10 @@ const usersData = {
             })
         }
         return data
+    },
+
+    isLoginRepeat(login) {
+        return JSON.stringify(usersData.read({ login: login })) !== '[]'
     },
 
     getLastUserId() {
@@ -119,7 +128,9 @@ const usersData = {
         id = this.getUserIdByEncryptString(id)
         const fileNum = Math.floor(id / this.limitInFile)
         const data = filesController.getData(fileNum)
-        return data.find(item => item.id === id)
+        const user = data.find(item => item.id === id)
+        user.id = encryptString(user.id)
+        return user
     },
 
     update(id, newData) {
@@ -129,6 +140,11 @@ const usersData = {
         const index = data.findIndex(item => item.id == id)
         if (index === -1)
             return "error";
+        if (data[index].password !== newData.oldPassword)
+            return "passwordNotFound"
+        if (this.isLoginRepeat(newData.login))
+            return "loginRepeat"
+        delete newData.oldPassword
         for (const key in newData) {
             data[index][key] = newData[key]
         }
