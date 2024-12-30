@@ -57,6 +57,12 @@ webSocket.onmessage = (e) => {
             text.innerText = `${inp.value} не найден`
             dialogResponse.showModal()
             break;
+        case "disconnect":
+            form.style.display = "block"
+            playContainer.style.display = "none"
+            text.innerText = `${inp.value} отключился`
+            dialogResponse.showModal()
+            break;
         case "partnerIsDisconnect":
             status.innerText = "disconnect"
             break;
@@ -78,6 +84,15 @@ reject.addEventListener("click", () => {
     }))
     dialogRequest.close()
 })
+
+disconnection.addEventListener("click", () => {
+    webSocket.send(JSON.stringify({
+        type: "disconnect",
+    }))
+    form.style.display = "block"
+    playContainer.style.display = "none"
+})
+
 btnClose.addEventListener("click", () => {
     dialogResponse.close()
 })

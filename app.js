@@ -73,7 +73,10 @@ wsServer.on("connection", ws => {
                 ws.user.partner.user.partner = undefined
                 ws.user.partner = undefined
                 break;
-
+            case "disconnect":
+                ws.user.partner.send(JSON.stringify({ type: "disconnect" }))
+                ws.user.partner.user.partner = undefined
+                ws.user.partner = undefined
             default:
                 break;
         }
