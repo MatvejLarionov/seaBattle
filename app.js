@@ -10,17 +10,21 @@ const port = 3000
 const server = http.createServer(app)
 const wsServer = new WebSocket.Server({ server })
 wsServer.on("connection", ws => {
+    const user = {
+        login: null,
+        id: null,
+        partner: undefined
+    }
     ws.on("message", message => {
         const ms = JSON.parse(message)
         switch (ms.type) {
             case "authorization":
                 const clients1 = [...wsServer.clients]
                 const userData = usersData.getUserById(ms.id)
-                ws.user = {
-                    login: userData.login,
-                    id: userData.id,
-                    partner: undefined
-                }
+                user.login = userData.login
+                user.id = userData.id
+                ws.user = user
+
                 const partner1 = clients1.find(item => {
                     if (item.user.partner)
                         return item.user.partner.user.id == ws.user.id
@@ -31,6 +35,10 @@ wsServer.on("connection", ws => {
                     ws.send(JSON.stringify({
                         type: "acceptJoin",
                         partnerLogin: ws.user.partner.user.login
+                    }))
+                    ws.user.partner.send(JSON.stringify({
+                        type: "acceptJoin",
+                        partnerLogin: ws.user.login
                     }))
                 }
                 break;
@@ -69,6 +77,12 @@ wsServer.on("connection", ws => {
             default:
                 break;
         }
+    })
+    ws.on("close", () => {
+        if (user.partner) {
+            user.partner.send(JSON.stringify({ type: "partnerIsDisconnect" }))
+        }
+        delete user
     })
 })
 

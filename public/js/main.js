@@ -35,6 +35,7 @@ btnRequestToJoin.addEventListener('click', (event) => {
 const dialogRequest = document.getElementById("dialogRequest")
 const dialogResponse = document.getElementById("dialogResponse")
 const partnerLogin = document.getElementById("partnerLogin")
+const status = document.getElementById("status")
 webSocket.onmessage = (e) => {
     const body = JSON.parse(e.data)
     switch (body.type) {
@@ -46,6 +47,7 @@ webSocket.onmessage = (e) => {
             playContainer.style.display = "block"
             partnerLogin1.innerText = body.partnerLogin
             form.style.display = "none"
+            status.innerText = "connect"
             break;
         case "rejectJoin":
             text.innerText = `${inp.value} отклонил запрос`
@@ -54,6 +56,9 @@ webSocket.onmessage = (e) => {
         case "partnerIsNotFound":
             text.innerText = `${inp.value} не найден`
             dialogResponse.showModal()
+            break;
+        case "partnerIsDisconnect":
+            status.innerText = "disconnect"
             break;
         default:
             break;
