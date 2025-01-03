@@ -1,98 +1,48 @@
-import { sendRequest } from "./sendRequest.js"
-const userId = sessionStorage.getItem('id')
-const showMainPage = async () => {
-    if (!userId) {
-        window.location = '/'
-        return
-    }
+import { sendRequest } from "./sendRequest.js";
+
+const userId = sessionStorage.getItem("id")
+if (userId) {
     const user = await sendRequest({ method: "GET", pathname: `users/${userId}` })
     login.innerText = user.login
+    if (user.ava)
+        ava.src = user.ava
 }
-await showMainPage()
-profile.addEventListener("click", () => location = "/profile.html")
+else
+    location = "/"
 
+login.addEventListener("click", () => {
+    inpNewPassword.style.display = "none"
 
-const webSocket = new WebSocket(`ws://localhost:3000`)
+    editForm.style.display = "block"
+    inpLogin.style.display = "block"
+})
+password.addEventListener("click", () => {
+    inpLogin.style.display = "none"
 
-webSocket.onopen = () => {
-    webSocket.send(JSON.stringify({
-        type: "authorization",
-        id: userId
-    }))
-}
+    editForm.style.display = "block"
+    inpNewPassword.style.display = "block"
+})
 
-const btnRequestToJoin = document.getElementById('btnRequestToJoin')
-const inp = document.getElementById('inpLogin')
-btnRequestToJoin.addEventListener('click', (event) => {
+submit.addEventListener("click", async (event) => {
     event.preventDefault()
-    const sendObj = {
-        type: "request to join",
-        login: inp.value
+    const user = {
+        login: inpLogin.value || undefined,
+        oldPassword: inpOlgPassword.value || undefined,
+        password: inpNewPassword.value || undefined
     }
-    webSocket.send(JSON.stringify(sendObj))
-})
-
-const dialogRequest = document.getElementById("dialogRequest")
-const dialogResponse = document.getElementById("dialogResponse")
-const partnerLogin = document.getElementById("partnerLogin")
-const status = document.getElementById("status")
-webSocket.onmessage = (e) => {
-    const body = JSON.parse(e.data)
-    switch (body.type) {
-        case "request to join":
-            partnerLogin.innerText = body.partnerLogin
-            dialogRequest.showModal()
-            break;
-        case "acceptJoin":
-            playContainer.style.display = "block"
-            partnerLogin1.innerText = body.partnerLogin
-            form.style.display = "none"
-            status.innerText = "connect"
-            break;
-        case "rejectJoin":
-            text.innerText = `${inp.value} отклонил запрос`
-            dialogResponse.showModal()
-            break;
-        case "partnerIsNotFound":
-            text.innerText = `${inp.value} не найден`
-            dialogResponse.showModal()
-            break;
-        case "disconnect":
-            form.style.display = "block"
-            playContainer.style.display = "none"
-            text.innerText = `${body.partnerLogin} отключился`
-            dialogResponse.showModal()
-            break;
-        case "partnerIsDisconnect":
-            status.innerText = "disconnect"
-            break;
-        default:
-            break;
+    if ((user.login || user.password) && user.oldPassword) {
+        const data = await sendRequest({ method: "PATCH", pathname: `users/${userId}`, body: user })
+        if (data.error) {
+            error.innerText = data.error
+        }
+        else {
+            error.innerText = "changed successfully"
+        }
+    } else {
+        error.innerText = "заполните поля"
     }
-}
-
-accept.addEventListener("click", () => {
-    webSocket.send(JSON.stringify({
-        type: "acceptJoin",
-    }))
-    dialogRequest.close()
 })
 
-reject.addEventListener("click", () => {
-    webSocket.send(JSON.stringify({
-        type: "rejectJoin",
-    }))
-    dialogRequest.close()
-})
-
-disconnection.addEventListener("click", () => {
-    webSocket.send(JSON.stringify({
-        type: "disconnect",
-    }))
-    form.style.display = "block"
-    playContainer.style.display = "none"
-})
-
-btnClose.addEventListener("click", () => {
-    dialogResponse.close()
+play.addEventListener("click", () => {
+    location = "/game/game.html"
 })
