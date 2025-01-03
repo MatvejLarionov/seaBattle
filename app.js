@@ -9,49 +9,52 @@ const port = 3000
 
 const server = http.createServer(app)
 const wsServer = new WebSocket.Server({ server })
+
+const users = []
+
 wsServer.on("connection", ws => {
     const user = {
         login: null,
         id: null,
+        ws,
         partner: undefined
     }
     ws.on("message", message => {
         const ms = JSON.parse(message)
         switch (ms.type) {
             case "authorization":
-                const clients1 = [...wsServer.clients]
                 const userData = usersData.getUserById(ms.id)
                 user.login = userData.login
                 user.id = userData.id
-                ws.user = user
+                users.push(user)
 
-                const partner1 = clients1.find(item => {
-                    if (item.user.partner)
-                        return item.user.partner.user.id == ws.user.id
+                const partner1 = users.find(item => {
+                    if (item.partner)
+                        return item.partner.id === user.id
                     return false
                 })
                 if (partner1) {
-                    ws.user.partner = partner1
+                    user.partner = partner1
+                    user.partner.partner = user
                     ws.send(JSON.stringify({
                         type: "acceptJoin",
-                        partnerLogin: ws.user.partner.user.login
+                        partnerLogin: user.partner.login
                     }))
-                    ws.user.partner.send(JSON.stringify({
+                    user.partner.ws.send(JSON.stringify({
                         type: "acceptJoin",
-                        partnerLogin: ws.user.login
+                        partnerLogin: user.login
                     }))
                 }
                 break;
             case "request to join":
-                const clients = [...wsServer.clients]
-                const partner = clients.find(item => item.user.login === ms.login)
-                if (partner && partner !== ws) {
-                    ws.user.partner = partner
-                    partner.user.partner = ws
-                    partner.send(JSON.stringify(
+                const partner = users.find(item => item.login === ms.login)
+                if (partner && partner.id !== user.id) {
+                    user.partner = partner
+                    partner.partner = user
+                    partner.ws.send(JSON.stringify(
                         {
                             type: "request to join",
-                            partnerLogin: ws.user.login
+                            partnerLogin: user.login
                         }
                     ))
                 }
@@ -59,33 +62,35 @@ wsServer.on("connection", ws => {
                     ws.send(JSON.stringify({ type: "partnerIsNotFound" }))
                 break;
             case "acceptJoin":
-                ws.user.partner.send(JSON.stringify({
+                user.partner.ws.send(JSON.stringify({
                     type: "acceptJoin",
-                    partnerLogin: ws.user.login
+                    partnerLogin: user.login
                 }))
                 ws.send(JSON.stringify({
                     type: "acceptJoin",
-                    partnerLogin: ws.user.partner.user.login
+                    partnerLogin: user.partner.login
                 }))
                 break;
             case "rejectJoin":
-                ws.user.partner.send(JSON.stringify({ type: "rejectJoin" }))
-                ws.user.partner.user.partner = undefined
-                ws.user.partner = undefined
+                user.partner.ws.send(JSON.stringify({ type: "rejectJoin" }))
+                user.partner.partner = undefined
+                user.partner = undefined
                 break;
             case "disconnect":
-                ws.user.partner.send(JSON.stringify({ type: "disconnect" }))
-                ws.user.partner.user.partner = undefined
-                ws.user.partner = undefined
+                user.partner.ws.send(JSON.stringify({ type: "disconnect" }))
+                user.partner.partner = undefined
+                user.partner = undefined
             default:
                 break;
         }
     })
     ws.on("close", () => {
         if (user.partner) {
-            user.partner.send(JSON.stringify({ type: "partnerIsDisconnect" }))
+            user.partner.ws.send(JSON.stringify({ type: "partnerIsDisconnect" }))
         }
-        delete user
+        const index = users.findIndex(item => item.id === user.id)
+        if (index !== -1)
+            users.splice(index, 1)
     })
 })
 
@@ -110,3 +115,10 @@ server.listen(port, () => {
             })
     }
 })
+
+// setInterval(() => {
+//     users.forEach(item => {
+//         console.log(`login : ${item.login} partnerLogin : ${item.partner ? item.partner.login : item.partner}`)
+//     })
+//     console.log("--------")
+// }, 2000)
