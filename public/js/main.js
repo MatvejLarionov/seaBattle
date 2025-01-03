@@ -60,7 +60,7 @@ webSocket.onmessage = (e) => {
         case "disconnect":
             form.style.display = "block"
             playContainer.style.display = "none"
-            text.innerText = `${inp.value} отключился`
+            text.innerText = `${body.partnerLogin} отключился`
             dialogResponse.showModal()
             break;
         case "partnerIsDisconnect":
