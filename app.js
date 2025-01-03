@@ -16,6 +16,7 @@ wsServer.on("connection", ws => {
     const user = {
         login: null,
         id: null,
+        isReady: false,
         ws,
         partner: undefined
     }
@@ -80,6 +81,20 @@ wsServer.on("connection", ws => {
                 user.partner.ws.send(JSON.stringify({ type: "disconnect", partnerLogin: user.login }))
                 user.partner.partner = undefined
                 user.partner = undefined
+                break;
+            case "ready to play":
+                user.isReady = true
+                if (user.partner.isReady === true) {
+                    user.partner.ws.send(JSON.stringify({ type: "beginGame" }))
+                    ws.send(JSON.stringify({ type: "beginGame" }))
+                }
+                else
+                    user.partner.ws.send(JSON.stringify({ type: "partnerIsReady" }))
+                break;
+            case "not ready to play":
+                user.isReady = false
+                user.partner.ws.send(JSON.stringify({ type: "partnerIsNotReady" }))
+                break;
             default:
                 break;
         }

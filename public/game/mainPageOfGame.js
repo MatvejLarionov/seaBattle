@@ -1,14 +1,11 @@
 import { sendRequest } from "../js/sendRequest.js"
 const userId = sessionStorage.getItem('id')
-const showMainPage = async () => {
-    if (!userId) {
-        window.location = '/'
-        return
-    }
-    const user = await sendRequest({ method: "GET", pathname: `users/${userId}` })
-    login.innerText = user.login
+if (!userId) {
+    window.location = '/'
 }
-await showMainPage()
+const user = await sendRequest({ method: "GET", pathname: `users/${userId}` })
+login.innerText = user.login
+
 
 
 const webSocket = new WebSocket(`ws://localhost:3000`)
@@ -65,6 +62,15 @@ webSocket.onmessage = (e) => {
         case "partnerIsDisconnect":
             status.innerText = "disconnect"
             break;
+        case "partnerIsReady":
+            status.innerText = "ready"
+            break;
+        case "partnerIsNotReady":
+            status.innerText = "connect"
+            break;
+        case "beginGame":
+            console.log("beginGame")
+            break;
         default:
             break;
     }
@@ -94,4 +100,14 @@ disconnection.addEventListener("click", () => {
 
 btnClose.addEventListener("click", () => {
     dialogResponse.close()
+})
+
+ready.addEventListener("click", () => {
+    webSocket.send(JSON.stringify({
+        type: ready.innerText
+    }))
+    if (ready.innerText === "ready to play")
+        ready.innerText = "not ready to play"
+    else
+        ready.innerText = "ready to play"
 })
