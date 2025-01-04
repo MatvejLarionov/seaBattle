@@ -16,7 +16,7 @@ wsServer.on("connection", ws => {
     const user = {
         login: null,
         id: null,
-        isReady: false,
+        status: "connect",
         ws,
         partner: undefined
     }
@@ -39,22 +39,22 @@ wsServer.on("connection", ws => {
                     user.partner.partner = user
                     ws.send(JSON.stringify({
                         type: "acceptJoin",
-                        partnerLogin: user.partner.login
+                        partner: { login: user.partner.login, status: user.partner.status }
                     }))
                     user.partner.ws.send(JSON.stringify({
                         type: "acceptJoin",
-                        partnerLogin: user.login
+                        partner: { login: user.login, status: user.status }
                     }))
                 }
                 break;
-            case "request to join":
+            case "requestToJoin":
                 const partner = users.find(item => item.login === ms.login)
                 if (partner && partner.id !== user.id) {
                     user.partner = partner
                     partner.partner = user
                     partner.ws.send(JSON.stringify(
                         {
-                            type: "request to join",
+                            type: "requestToJoin",
                             partnerLogin: user.login
                         }
                     ))
@@ -65,11 +65,11 @@ wsServer.on("connection", ws => {
             case "acceptJoin":
                 user.partner.ws.send(JSON.stringify({
                     type: "acceptJoin",
-                    partnerLogin: user.login
+                    partner: { login: user.login, status: user.status }
                 }))
                 ws.send(JSON.stringify({
                     type: "acceptJoin",
-                    partnerLogin: user.partner.login
+                    partner: { login: user.partner.login, status: user.partner.status }
                 }))
                 break;
             case "rejectJoin":
@@ -78,22 +78,22 @@ wsServer.on("connection", ws => {
                 user.partner = undefined
                 break;
             case "disconnect":
-                user.partner.ws.send(JSON.stringify({ type: "disconnect", partnerLogin: user.login }))
+                user.partner.ws.send(JSON.stringify({ type: "disconnect" }))
                 user.partner.partner = undefined
                 user.partner = undefined
                 break;
             case "ready to play":
-                user.isReady = true
-                if (user.partner.isReady === true) {
-                    user.partner.ws.send(JSON.stringify({ type: "beginGame" }))
-                    ws.send(JSON.stringify({ type: "beginGame" }))
+                user.status = "readyPlay"
+                if (user.partner.status === "readyPlay") {
+                    user.partner.ws.send(JSON.stringify({ type: "startGame" }))
+                    ws.send(JSON.stringify({ type: "startGame" }))
                 }
                 else
-                    user.partner.ws.send(JSON.stringify({ type: "partnerIsReady" }))
+                    user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "readyPlay" }))
                 break;
             case "not ready to play":
-                user.isReady = false
-                user.partner.ws.send(JSON.stringify({ type: "partnerIsNotReady" }))
+                user.status = "connect"
+                user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "connect" }))
                 break;
             default:
                 break;
@@ -101,7 +101,7 @@ wsServer.on("connection", ws => {
     })
     ws.on("close", () => {
         if (user.partner) {
-            user.partner.ws.send(JSON.stringify({ type: "partnerIsDisconnect" }))
+            user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "disconnect" }))
         }
         const index = users.findIndex(item => item.id === user.id)
         if (index !== -1)

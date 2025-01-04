@@ -5,6 +5,7 @@ if (!userId) {
 }
 const user = await sendRequest({ method: "GET", pathname: `users/${userId}` })
 login.innerText = user.login
+let partner = null
 
 
 
@@ -22,7 +23,7 @@ const inp = document.getElementById('inpLogin')
 btnRequestToJoin.addEventListener('click', (event) => {
     event.preventDefault()
     const sendObj = {
-        type: "request to join",
+        type: "requestToJoin",
         login: inp.value
     }
     webSocket.send(JSON.stringify(sendObj))
@@ -35,15 +36,16 @@ const status = document.getElementById("status")
 webSocket.onmessage = (e) => {
     const body = JSON.parse(e.data)
     switch (body.type) {
-        case "request to join":
+        case "requestToJoin":
             partnerLogin.innerText = body.partnerLogin
             dialogRequest.showModal()
             break;
         case "acceptJoin":
+            partner = body.partner
             playContainer.style.display = "block"
-            partnerLogin1.innerText = body.partnerLogin
+            partnerLogin1.innerText = partner.login
             form.style.display = "none"
-            status.innerText = "connect"
+            status.innerText = partner.status
             break;
         case "rejectJoin":
             text.innerText = `${inp.value} отклонил запрос`
@@ -56,20 +58,15 @@ webSocket.onmessage = (e) => {
         case "disconnect":
             form.style.display = "block"
             playContainer.style.display = "none"
-            text.innerText = `${body.partnerLogin} отключился`
+            text.innerText = `${partner.login} отключился`
             dialogResponse.showModal()
             break;
-        case "partnerIsDisconnect":
-            status.innerText = "disconnect"
+        case "changeStatus":
+            partner.status = body.status
+            status.innerText = partner.status
             break;
-        case "partnerIsReady":
-            status.innerText = "ready"
-            break;
-        case "partnerIsNotReady":
-            status.innerText = "connect"
-            break;
-        case "beginGame":
-            console.log("beginGame")
+        case "startGame":
+            console.log("startGame")
             break;
         default:
             break;
