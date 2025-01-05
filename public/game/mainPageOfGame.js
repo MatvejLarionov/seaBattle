@@ -1,4 +1,5 @@
 import { sendRequest } from "../js/sendRequest.js"
+import { game } from "./game.js"
 const userId = sessionStorage.getItem('id')
 if (!userId) {
     window.location = '/'
@@ -66,7 +67,8 @@ webSocket.onmessage = (e) => {
             status.innerText = partner.status
             break;
         case "startGame":
-            console.log("startGame")
+            document.getElementById("container").innerHTML = ""
+            game.start()
             break;
         default:
             break;

@@ -1,3 +1,8 @@
+:root {
+    --n: 10;
+    --m: 10;
+}
+
 .container {
     border: 1px solid black;
     max-width: 500px;
@@ -7,7 +12,51 @@
     align-items: center;
 }
 
+.container1 {
+    margin: 0 auto;
+    border: 1px solid black;
+    max-width: 1000px;
+}
+
 .ava {
     width: 50px;
     border-radius: 100%;
+}
+
+.gameField {
+    margin: 0 auto;
+    width: calc(var(--n)*50px);
+    height: calc((var(--m)*50px));
+    display: grid;
+    grid-template-columns: repeat(var(--n), 50px);
+    grid-template-rows: repeat(var(--m), 50px);
+}
+
+.gameField>div {
+    border: 1px solid black;
+}
+
+.panel{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.ship {
+    display: flex;
+    transition: 0.2s;
+    /* min-width: 50px; */
+}
+
+.ship>div {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+    background-color: green;
+}
+
+.selectedElement{
+    transform: scale(1.5);
+    transition: 0.2s;
 }
