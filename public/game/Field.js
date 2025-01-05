@@ -47,7 +47,7 @@ export class Field {
             this.set(item, "ship")
         })
     }
-    getShip(point) {
+    getIndexShip(point) {
         for (let i = 0; i < this.arrShips.length; i++) {
             const pointArray = this.arrShips[i].pointArray
             for (let j = 0; j < pointArray.length; j++) {
@@ -55,6 +55,11 @@ export class Field {
                     return i
             }
         }
+    }
+    getShip(point) {
+        const index = this.getIndexShip(point)
+        if (index !== undefined)
+            return this.arrShips[index]
     }
     canSetShip(ship1, centerPoint) {
         const ship = new Ship(ship1.length)
@@ -69,15 +74,15 @@ export class Field {
             }
             for (let j = 0; j < tempArr.length; j++) {
                 const point2 = new Point(point1.x + tempArr[j].x, point1.y + tempArr[j].y)
-                if (this.get(point2) === "ship" ||
-                    this.get(point2) === "destroyedShip")
+                if (this.getShip(point2) !== ship1 &&
+                    (this.get(point2) === "ship" || this.get(point2) === "destroyedShip"))
                     return false
             }
         }
         return true
     }
     deleteShip(point) {
-        const index = this.getShip(point)
+        const index = this.getIndexShip(point)
         if (index === undefined)
             return
         const ship = this.arrShips[index]
@@ -85,6 +90,15 @@ export class Field {
             this.set(item, "empty")
         })
         return this.arrShips.splice(index, 1).at(0)
+    }
+    canMovShip(oldPoint, newPoint) {
+        const ship = this.getShip(oldPoint)
+        return this.canSetShip(ship, newPoint)
+    }
+    movShip(oldPoint, newPoint) {
+        const ship = this.deleteShip(oldPoint)
+        if (ship)
+            this.setShip(ship, newPoint)
     }
 }
 // const field = new Field(10, 10)
