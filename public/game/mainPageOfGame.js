@@ -10,7 +10,7 @@ let partner = null
 
 
 
-const webSocket = new WebSocket(`ws://localhost:3000`)
+const webSocket = new WebSocket(`ws://${location.hostname}:${location.port}`)
 
 webSocket.onopen = () => {
     webSocket.send(JSON.stringify({

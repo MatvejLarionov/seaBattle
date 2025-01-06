@@ -46,15 +46,27 @@ export const game = {
 
             }
         }
-        gameField.addEventListener("mousedown", (event) => {
-            oldIndex = event.target.dataset.index
-            const point = new Point()
-            point.setIndex(oldIndex, this.field.n)
-            if (this.field.getShip(point))
-                gameField.addEventListener("mousemove", movShip)
+        let isMove = false
+        gameField.addEventListener("click", (event) => {
+            if (isMove) {
+                gameField.removeEventListener("mousemove", movShip)
+                isMove = false
+            } else {
+                oldIndex = event.target.dataset.index
+                const point = new Point()
+                point.setIndex(oldIndex, this.field.n)
+                if (this.field.getShip(point)) {
+                    gameField.addEventListener("mousemove", movShip)
+                    isMove = true
+                }
+            }
         })
-        gameField.addEventListener("mouseup", (event) => {
-            gameField.removeEventListener("mousemove", movShip)
+        gameField.addEventListener("dblclick", (event) => {
+            const point = new Point()
+            point.setIndex(event.target.dataset.index, this.field.n)
+
+            if (this.field.canTurn_clockwise(point))
+                this.field.turn_clockwise(point)
         })
 
         this.field.elements.forEach((item, index) => {

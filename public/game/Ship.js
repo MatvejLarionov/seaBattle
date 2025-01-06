@@ -15,35 +15,40 @@ export class Ship {
         if (size % 2 === 0)
             this.arr[size - 1] = new Point(j, 0)
     }
-    turn_clockwise(listPoint) {
-        const center = listPoint[0];
-
-        let difference_x = 0;
-        let difference_y = 0;
-
-        for (let i = 1; i < listPoint.length; i++) {
-            difference_x = center.x - listPoint[i].x;//0
-            difference_y = center.y - listPoint[i].y;//1
-            listPoint[i].x = center.x + difference_y;//2
-            listPoint[i].y = center.y - difference_x;//1
-
-        }
-        return listPoint;
+    copy() {
+        const ship = new Ship()
+        ship.arr = this.arr.map(item => new Point(item.x, item.y))
+        return ship
     }
-    turn_counterclockwise(listPoint) {
-        const center = listPoint[0];
+    turn_clockwise() {
+        const center = this.arr[0];
 
         let difference_x = 0;
         let difference_y = 0;
 
-        for (let i = 1; i < listPoint.length; i++) {
-            difference_x = center.x - listPoint[i].x;//0
-            difference_y = center.y - listPoint[i].y;//1
-            listPoint[i].x = center.x - difference_y;//2
-            listPoint[i].y = center.y + difference_x;//1
+        for (let i = 1; i < this.arr.length; i++) {
+            difference_x = center.x - this.arr[i].x;//0
+            difference_y = center.y - this.arr[i].y;//1
+            this.arr[i].x = center.x + difference_y;//2
+            this.arr[i].y = center.y - difference_x;//1
 
         }
-        return listPoint;
+        return this.arr;
+    }
+    turn_counterclockwise() {
+        const center = this.arr[0];
+
+        let difference_x = 0;
+        let difference_y = 0;
+
+        for (let i = 1; i < this.arr.length; i++) {
+            difference_x = center.x - this.arr[i].x;//0
+            difference_y = center.y - this.arr[i].y;//1
+            this.arr[i].x = center.x - difference_y;//2
+            this.arr[i].y = center.y + difference_x;//1
+
+        }
+        return this.arr;
     }
     movToPoint(point) {
         const shipCenter = this.arr[0]
