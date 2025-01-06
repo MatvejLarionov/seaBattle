@@ -1,44 +1,33 @@
-import { Point } from "./Point.js"
-import { Ship } from "./Ship.js"
+const Point = require("./Point")
+const Ship = require("./Ship")
 
-
-const cellColor = {
-    empty: "white",
-    ship: "green",
-    destroyedShip: "red",
-    destroyedEmpty: "#A0A0A0"
-}
-const colorCell = {}
-Object.keys(cellColor).forEach(item => {
-    colorCell[cellColor[item]] = item
-})
-export class Field {
+// const cellState = [
+//     "empty",
+//     "ship",
+//     "destroyedShip",
+//     "destroyedEmpty"
+// ]
+class Field {
     constructor(n, m) {
         this.n = n
         this.m = m
         this.arr = Array(n * m)
         this.arrShips = []
         for (let i = 0; i < this.arr.length; i++) {
-            const div = document.createElement("div")
-            div.style.backgroundColor = cellColor.empty
-            this.arr[i] = div
-
+            this.arr[i] = "empty"
         }
 
     }
     get length() {
         return this.arr.length
     }
-    get elements() {
-        return this.arr
-    }
     get(point) {
         if (point.x >= 0 && point.y >= 0 && point.x < this.n && point.y < this.m)
-            return colorCell[this.arr[point.getIndex(this.n)].style.backgroundColor]
+            return this.arr[point.getIndex(this.n)]
     }
     set(point, state) {
         if (point.x >= 0 && point.y >= 0 && point.x < this.n && point.y < this.m) {
-            this.arr[point.getIndex(this.n)].style.backgroundColor = cellColor[state]
+            this.arr[point.getIndex(this.n)] = state
             return true
         }
         return false
@@ -48,10 +37,7 @@ export class Field {
         this.m = field.m
         this.arr = Array(this.n * this.m)
         for (let i = 0; i < this.arr.length; i++) {
-            const div = document.createElement("div")
-            div.style.backgroundColor = cellColor.empty
-            this.arr[i] = div
-
+            this.arr[i] = "empty"
         }
         this.arrShips = field.arrShips.map(item => {
             const ship = new Ship()
@@ -139,3 +125,5 @@ export class Field {
 // console.log(field)
 // field.deleteShip(new Point(3, 5))
 // console.log(field)
+
+module.exports = Field

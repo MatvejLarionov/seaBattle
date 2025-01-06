@@ -66,9 +66,20 @@ webSocket.onmessage = (e) => {
             partner.status = body.status
             status.innerText = partner.status
             break;
-        case "startGame":
-            document.getElementById("container").innerHTML = ""
-            game.start()
+        case "setGameStage":
+            switch (body.gameStage) {
+                case "fillingField":
+                    const playContainer1 = document.getElementById("playContainer")
+                    playContainer1.removeChild(ready)
+                    container.innerHTML = ''
+                    container.append(playContainer1)
+                    game.fillingField(body.field)
+
+                    break;
+
+                default:
+                    break;
+            }
             break;
         default:
             break;

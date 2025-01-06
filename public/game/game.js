@@ -1,10 +1,9 @@
 import { Field } from "./Field.js"
 import { Point } from "./Point.js"
-import { Ship } from "./Ship.js"
 
 export const game = {
     field: new Field(10, 10),
-    start() {
+    fillingField(field) {
         const container = document.getElementById("container")
         container.className = "container1"
         const gameContainer = document.createElement("div")
@@ -15,17 +14,7 @@ export const game = {
         gameField.classList.add("gameField")
         gameContainer.append(gameField)
 
-
-        const arrShipsLength = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
-        for (let i = 0; i < this.field.elements.length && arrShipsLength.length > 0; i++) {
-            const ship = new Ship(arrShipsLength.at(-1))
-            const point = new Point()
-            point.setIndex(i, this.field.n)
-            if (this.field.canSetShip(ship, point)) {
-                this.field.setShip(ship, point)
-                arrShipsLength.pop()
-            }
-        }
+        this.field.setField(field)
 
         let oldIndex;
 

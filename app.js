@@ -5,6 +5,9 @@ const app = express()
 
 const usersRouter = require('./routes/usersRouter.js')
 const usersData = require("./data/usersData.js")
+const Field = require("./game/Field.js")
+const Ship = require("./game/Ship.js")
+const Point = require("./game/Point.js")
 const port = 3000
 
 const server = http.createServer(app)
@@ -17,6 +20,9 @@ wsServer.on("connection", ws => {
         login: null,
         id: null,
         status: "connect",
+        field: undefined,
+        partnerField: undefined,
+        gameStage: "connecting",
         ws,
         partner: undefined
     }
@@ -85,8 +91,31 @@ wsServer.on("connection", ws => {
             case "ready to play":
                 user.status = "readyPlay"
                 if (user.partner.status === "readyPlay") {
-                    user.partner.ws.send(JSON.stringify({ type: "startGame" }))
-                    ws.send(JSON.stringify({ type: "startGame" }))
+                    user.gameStage = "fillingField"
+                    user.partner.gameStage = "fillingField"
+                    user.field = new Field(10, 10)
+                    user.partner.field = new Field(10, 10)
+                    const arrShipsLength = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
+                    for (let i = 0; i < user.field.length && arrShipsLength.length > 0; i++) {
+                        const ship = new Ship(arrShipsLength.at(-1))
+                        const point = new Point()
+                        point.setIndex(i, user.field.n)
+                        if (user.field.canSetShip(ship, point)) {
+                            user.field.setShip(ship, point)
+                            user.partner.field.setShip(ship.copy(), point)
+                            arrShipsLength.pop()
+                        }
+                    }
+                    ws.send(JSON.stringify({
+                        type: "setGameStage",
+                        gameStage: "fillingField",
+                        field: user.field
+                    }))
+                    user.partner.ws.send(JSON.stringify({
+                        type: "setGameStage",
+                        gameStage: "fillingField",
+                        field: user.partner.field
+                    }))
                 }
                 else
                     user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "readyPlay" }))

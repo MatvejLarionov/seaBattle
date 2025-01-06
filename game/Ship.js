@@ -1,8 +1,6 @@
-import { Point } from "./Point.js"
+const Point = require("./Point")
 
-
-
-export class Ship {
+class Ship {
     constructor(size) {
         this.arr = Array(size)
         
@@ -69,3 +67,5 @@ export class Ship {
         }
     }
 }
+
+module.exports = Ship
