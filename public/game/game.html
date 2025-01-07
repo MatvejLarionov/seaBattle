@@ -10,33 +10,17 @@
 </head>
 
 <body>
-    <div id="container" class="container">
-        <header>
-            <img src="/img/ava.jpg" alt="ava" class="ava" id="ava">
-            <p class="login" id="login"></p>
-        </header>
-        <main class="main" id="main">
-            <form id="form">
-                <input type="text" placeholder="partner login" id="inpLogin">
-                <button id="btnRequestToJoin">запросить присоедениться</button>
-            </form>
-            <div id="playContainer" style="display: none;">
-                <p>подключён к <span id="partnerLogin1"></span></p>
-                <p>статус <span id="status"></span></p>
-                <button id="ready">ready to play</button>
-                <button id="disconnection">отключится</button>
-            </div>
-            <dialog id="dialogRequest">
-                <p>Игрок <span id="partnerLogin"></span> хочет присоединиться</p>
-                <button id="accept">принять</button>
-                <button id="reject">отклонить</button>
-            </dialog>
-            <dialog id="dialogResponse">
-                <p>Игрок <span id="text"></span></p>
-                <button id="btnClose">закрыть</button>
-            </dialog>
-        </main>
-    </div>
+    <div id="container" class="container"></div>
+    
+    <dialog id="dialogRequest">
+        <p>Игрок <span id="partnerLoginInDialog"></span> хочет присоединиться</p>
+        <button id="accept">принять</button>
+        <button id="reject">отклонить</button>
+    </dialog>
+    <dialog id="dialogResponse">
+        <p>Игрок <span id="text"></span></p>
+        <button id="btnClose">закрыть</button>
+    </dialog>
 </body>
 
 </html>

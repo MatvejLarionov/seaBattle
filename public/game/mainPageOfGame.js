@@ -1,14 +1,13 @@
 import { sendRequest } from "../js/sendRequest.js"
 import { game } from "./game.js"
+import { page } from "./pages.js"
 const userId = sessionStorage.getItem('id')
 if (!userId) {
     window.location = '/'
 }
 const user = await sendRequest({ method: "GET", pathname: `users/${userId}` })
-login.innerText = user.login
+page.setConnectingPage(user)
 let partner = null
-
-
 
 const webSocket = new WebSocket(`ws://${location.hostname}:${location.port}`)
 
@@ -19,105 +18,112 @@ webSocket.onopen = () => {
     }))
 }
 
-const btnRequestToJoin = document.getElementById('btnRequestToJoin')
 const inp = document.getElementById('inpLogin')
-btnRequestToJoin.addEventListener('click', (event) => {
-    event.preventDefault()
-    const sendObj = {
-        type: "requestToJoin",
-        login: inp.value
-    }
-    webSocket.send(JSON.stringify(sendObj))
-})
-
 const dialogRequest = document.getElementById("dialogRequest")
 const dialogResponse = document.getElementById("dialogResponse")
-const partnerLogin = document.getElementById("partnerLogin")
-const status = document.getElementById("status")
+
+const eventListners = {
+    btnRequestToJoin: {
+        type: "click",
+        callback: (event) => {
+            event.preventDefault()
+            const sendObj = {
+                type: "requestToJoin",
+                login: inp.value
+            }
+            webSocket.send(JSON.stringify(sendObj))
+        }
+    },
+    accept: {
+        type: "click",
+        callback: () => {
+            webSocket.send(JSON.stringify({
+                type: "acceptJoin",
+            }))
+            dialogRequest.close()
+        }
+    },
+    reject: {
+        type: "click",
+        callback: () => {
+            webSocket.send(JSON.stringify({
+                type: "rejectJoin",
+            }))
+            dialogRequest.close()
+        }
+    },
+    disconnection: {
+        type: "click",
+        callback: () => {
+            webSocket.send(JSON.stringify({
+                type: "disconnect",
+            }))
+            page.setConnectingPage(user)
+        }
+    },
+    btnClose: {
+        type: "click",
+        callback: () => {
+            dialogResponse.close()
+        }
+    },
+    ready: {
+        type: "click",
+        callback: () => {
+            webSocket.send(JSON.stringify({
+                type: ready.innerText
+            }))
+            if (ready.innerText === "ready to play")
+                ready.innerText = "not ready to play"
+            else
+                ready.innerText = "ready to play"
+        }
+    }
+}
+for (const key in eventListners) {
+    const type = eventListners[key].type
+    const callback = eventListners[key].callback
+    page.addEventListener(key, type, callback)
+}
+
 webSocket.onmessage = (e) => {
     const body = JSON.parse(e.data)
     switch (body.type) {
+        case "setPartner":
+            partner = body.partner
+            break;
         case "requestToJoin":
-            partnerLogin.innerText = body.partnerLogin
-            dialogRequest.showModal()
+            page.openDialogRequest(partner)
             break;
         case "acceptJoin":
-            partner = body.partner
-            playContainer.style.display = "block"
-            partnerLogin1.innerText = partner.login
-            form.style.display = "none"
-            status.innerText = partner.status
+            page.setConnectingPageWithPartner(user, partner)
             break;
         case "rejectJoin":
-            text.innerText = `${inp.value} отклонил запрос`
-            dialogResponse.showModal()
+            page.openDialogResponse(`${partner.login} отклонил запрос`)
+            partner = null
             break;
         case "partnerIsNotFound":
-            text.innerText = `${inp.value} не найден`
-            dialogResponse.showModal()
+            page.openDialogResponse(`${inp.value} не найден`)
             break;
         case "disconnect":
-            form.style.display = "block"
-            playContainer.style.display = "none"
-            text.innerText = `${partner.login} отключился`
-            dialogResponse.showModal()
+            page.setConnectingPage(user)
+            page.openDialogResponse(`${partner.login} отключился`)
             break;
         case "changeStatus":
             partner.status = body.status
-            status.innerText = partner.status
+            page.changeStatus(partner.status)
             break;
-        case "setGameStage":
-            switch (body.gameStage) {
-                case "fillingField":
-                    const playContainer1 = document.getElementById("playContainer")
-                    playContainer1.removeChild(ready)
-                    container.innerHTML = ''
-                    container.append(playContainer1)
-                    game.fillingField(body.field)
+        // case "setGameStage":
+        //     switch (body.gameStage) {
+        //         case "fillingField":
+        //             page.setFillingField(body.field)
+        //             break;
 
-                    break;
-
-                default:
-                    break;
-            }
-            break;
+        //         default:
+        //             break;
+        //     }
+        //     break;
         default:
             break;
     }
 }
-
-accept.addEventListener("click", () => {
-    webSocket.send(JSON.stringify({
-        type: "acceptJoin",
-    }))
-    dialogRequest.close()
-})
-
-reject.addEventListener("click", () => {
-    webSocket.send(JSON.stringify({
-        type: "rejectJoin",
-    }))
-    dialogRequest.close()
-})
-
-disconnection.addEventListener("click", () => {
-    webSocket.send(JSON.stringify({
-        type: "disconnect",
-    }))
-    form.style.display = "block"
-    playContainer.style.display = "none"
-})
-
-btnClose.addEventListener("click", () => {
-    dialogResponse.close()
-})
-
-ready.addEventListener("click", () => {
-    webSocket.send(JSON.stringify({
-        type: ready.innerText
-    }))
-    if (ready.innerText === "ready to play")
-        ready.innerText = "not ready to play"
-    else
-        ready.innerText = "ready to play"
-})

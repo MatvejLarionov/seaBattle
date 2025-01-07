@@ -16,40 +16,44 @@ const wsServer = new WebSocket.Server({ server })
 const users = []
 
 wsServer.on("connection", ws => {
-    const user = {
+    let user = {
         login: null,
         id: null,
         status: "connect",
         field: undefined,
         partnerField: undefined,
         gameStage: "connecting",
+        partner: undefined,
         ws,
-        partner: undefined
+        timeoutId: undefined
     }
     ws.on("message", message => {
         const ms = JSON.parse(message)
         switch (ms.type) {
             case "authorization":
                 const userData = usersData.getUserById(ms.id)
-                user.login = userData.login
-                user.id = userData.id
-                users.push(user)
-
-                const partner1 = users.find(item => {
-                    if (item.partner)
-                        return item.partner.id === user.id
-                    return false
-                })
-                if (partner1) {
-                    user.partner = partner1
-                    user.partner.partner = user
+                const tempUser = users.find(item => item.id === userData.id)
+                if (tempUser) {
+                    user = tempUser
+                    clearTimeout(user.timeoutId)
+                    user.status = "connect"
+                    user.ws = ws
+                } else {
+                    user.login = userData.login
+                    user.id = userData.id
+                    users.push(user)
+                }
+                if (user.partner) {
                     ws.send(JSON.stringify({
-                        type: "acceptJoin",
+                        type: "setPartner",
                         partner: { login: user.partner.login, status: user.partner.status }
                     }))
                     user.partner.ws.send(JSON.stringify({
+                        type: "changeStatus",
+                        status: "connect"
+                    }))
+                    ws.send(JSON.stringify({
                         type: "acceptJoin",
-                        partner: { login: user.login, status: user.status }
                     }))
                 }
                 break;
@@ -58,10 +62,17 @@ wsServer.on("connection", ws => {
                 if (partner && partner.id !== user.id) {
                     user.partner = partner
                     partner.partner = user
+                    ws.send(JSON.stringify({
+                        type: "setPartner",
+                        partner: { login: user.partner.login, status: user.partner.status }
+                    }))
+                    partner.ws.send(JSON.stringify({
+                        type: "setPartner",
+                        partner: { login: user.login, status: user.status }
+                    }))
                     partner.ws.send(JSON.stringify(
                         {
-                            type: "requestToJoin",
-                            partnerLogin: user.login
+                            type: "requestToJoin"
                         }
                     ))
                 }
@@ -70,12 +81,10 @@ wsServer.on("connection", ws => {
                 break;
             case "acceptJoin":
                 user.partner.ws.send(JSON.stringify({
-                    type: "acceptJoin",
-                    partner: { login: user.login, status: user.status }
+                    type: "acceptJoin"
                 }))
                 ws.send(JSON.stringify({
-                    type: "acceptJoin",
-                    partner: { login: user.partner.login, status: user.partner.status }
+                    type: "acceptJoin"
                 }))
                 break;
             case "rejectJoin":
@@ -130,11 +139,21 @@ wsServer.on("connection", ws => {
     })
     ws.on("close", () => {
         if (user.partner) {
+            user.status = "disconnect"
             user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "disconnect" }))
+            user.timeoutId = setTimeout(() => {
+                const index = users.findIndex(item => item.id === user.id)
+                if (index !== -1) {
+                    user.partner.ws.send(JSON.stringify({ type: "disconnect" }))
+                    user.partner.partner = undefined
+                    users.splice(index, 1)
+                }
+            }, 10000)
+        } else {
+            const index = users.findIndex(item => item.id === user.id)
+            if (index !== -1)
+                users.splice(index, 1)
         }
-        const index = users.findIndex(item => item.id === user.id)
-        if (index !== -1)
-            users.splice(index, 1)
     })
 })
 
