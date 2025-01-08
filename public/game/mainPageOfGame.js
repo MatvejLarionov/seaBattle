@@ -10,7 +10,7 @@ page.setConnectingPage(user)
 let partner = null
 
 const webSocket = new WebSocket(`ws://${location.hostname}:${location.port}`)
-
+game.setWebSocket(webSocket)
 webSocket.onopen = () => {
     webSocket.send(JSON.stringify({
         type: "authorization",
@@ -117,6 +117,7 @@ webSocket.onmessage = (e) => {
         case "setGameStage":
             switch (body.gameStage) {
                 case "fillingField":
+                    // ready.innerText = "ready to play"
                     page.setFillingField(body.field)
                     break;
                 default:

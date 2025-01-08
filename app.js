@@ -143,6 +143,22 @@ wsServer.on("connection", ws => {
                 user.status = "connect"
                 user.partner.sendPartnerStatus()
                 break;
+            case "movShip":
+                const oldPoint = new Point()
+                oldPoint.setIndex(ms.oldIndex, user.field.n)
+                const newPoint = new Point()
+                newPoint.setIndex(ms.newIndex, user.field.n)
+                if (user.field.canMovShip(oldPoint, newPoint)) {
+                    user.field.movShip(oldPoint, newPoint)
+                }
+                break;
+            case "turn_clockwise":
+                const point = new Point()
+                point.setIndex(ms.index, user.field.n)
+                if (user.field.canTurn_clockwise(point)) {
+                    user.field.turn_clockwise(point)
+                }
+                break;
             default:
                 break;
         }

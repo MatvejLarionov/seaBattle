@@ -3,6 +3,10 @@ import { Point } from "./Point.js"
 
 export const game = {
     field: new Field(10, 10),
+    webSocket: null,
+    setWebSocket(webSocket) {
+        this.webSocket = webSocket
+    },
     fillingField(field) {
         const container = document.getElementById("container")
         container.className = "container1"
@@ -29,6 +33,11 @@ export const game = {
 
 
                 if (this.field.canMovShip(oldPoint, newPoint)) {
+                    this.webSocket.send(JSON.stringify({
+                        type: "movShip",
+                        oldIndex,
+                        newIndex
+                    }))
                     this.field.movShip(oldPoint, newPoint)
                     oldIndex = newIndex
                 }
@@ -54,8 +63,13 @@ export const game = {
             const point = new Point()
             point.setIndex(event.target.dataset.index, this.field.n)
 
-            if (this.field.canTurn_clockwise(point))
+            if (this.field.canTurn_clockwise(point)) {
+                this.webSocket.send(JSON.stringify({
+                    type: "turn_clockwise",
+                    index: event.target.dataset.index
+                }))
                 this.field.turn_clockwise(point)
+            }
         })
 
         this.field.elements.forEach((item, index) => {
