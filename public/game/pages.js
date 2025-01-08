@@ -63,14 +63,14 @@ export const page = {
     },
 
     get userLogin() {
-        return document.getElementById("login")
+        return this.components.userContainer.querySelector("#login")
     },
     get partnerLogin() {
-        return document.getElementById("partnerLogin")
+        return this.components.partnerContainer.querySelector("#partnerLogin")
     },
 
     get status() {
-        return document.getElementById("status")
+        return this.components.partnerContainer.querySelector("#status")
     },
 
     replaceHTML(html = '', object) {
@@ -89,21 +89,22 @@ export const page = {
             }
         }
     },
-
+    setPartner(partner) {
+        this.partnerLogin.innerText = partner.login
+        this.status.innerText = partner.status
+    },
     setConnectingPage(user) {
         this.container.innerHTML = ""
         this.container.append(this.components.userContainer, this.components.form)
         this.userLogin.innerText = user.login
     },
-    setConnectingPageWithPartner(user, partner) {
+    setConnectingPageWithPartner(user) {
         this.container.innerHTML = ""
         this.container.append(this.components.userContainer,
             this.components.partnerContainer,
             this.components.playContainer)
 
         this.userLogin.innerText = user.login
-        this.partnerLogin.innerText = partner.login
-        this.status.innerText = partner.status
     },
     setFillingField(field) {
         this.container.innerText = ""

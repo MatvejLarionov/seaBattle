@@ -72,7 +72,11 @@ wsServer.on("connection", ws => {
                 if (user.partner) {
                     user.sendPartner()
                     user.partner.sendPartnerStatus()
-                    user.send({ type: "acceptJoin" })
+                    const gameStageToType = {
+                        connecting: { type: "acceptJoin" },
+                        fillingField: { type: "setGameStage", gameStage: user.gameStage, field: user.field }
+                    }
+                    user.send(gameStageToType[user.gameStage])
                 }
                 break;
             case "requestToJoin":
@@ -137,7 +141,7 @@ wsServer.on("connection", ws => {
                 break;
             case "not ready to play":
                 user.status = "connect"
-                    user.partner.sendPartnerStatus()
+                user.partner.sendPartnerStatus()
                 break;
             default:
                 break;

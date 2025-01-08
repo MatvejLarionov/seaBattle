@@ -91,12 +91,13 @@ webSocket.onmessage = (e) => {
     switch (body.type) {
         case "setPartner":
             partner = body.partner
+            page.setPartner(partner)
             break;
         case "requestToJoin":
             page.openDialogRequest(partner)
             break;
         case "acceptJoin":
-            page.setConnectingPageWithPartner(user, partner)
+            page.setConnectingPageWithPartner(user)
             break;
         case "rejectJoin":
             page.openDialogResponse(`${partner.login} отклонил запрос`)
