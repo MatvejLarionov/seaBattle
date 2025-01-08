@@ -5,7 +5,7 @@ const createElement = ({ tagName, id, className, type, callback }) => {
     if (id)
         el.id = id
     if (className)
-        el.className.add(className)
+        el.classList.add(className)
     if (type && callback) {
         el.addEventListener(type, callback)
     }
@@ -51,7 +51,13 @@ export const page = {
             <button id="disconnection">отключится</button>`
             return el
         })(),
-        
+        gameContainer: (() => {
+            const el = createElement({
+                tagName: "div", id: "gameContainer", className: "gameContainer"
+            })
+            return el
+        })(),
+
         dialogRequest: document.getElementById("dialogRequest"),
         dialogResponse: document.getElementById("dialogResponse")
     },
@@ -100,9 +106,11 @@ export const page = {
         this.status.innerText = partner.status
     },
     setFillingField(field) {
-        this.form.style.display = "none"
-        this.playContainer.style.display = "block"
-        document.getElementById("gameContainer").display = "block"
+        this.container.innerText = ""
+        this.components.gameContainer.innerHTML = ""
+        this.components.gameContainer.append(this.components.partnerContainer,
+            this.components.playContainer)
+        this.container.append(this.components.gameContainer)
         game.fillingField(field)
     },
     changeStatus(status) {

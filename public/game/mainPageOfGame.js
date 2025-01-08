@@ -113,16 +113,15 @@ webSocket.onmessage = (e) => {
             partner.status = body.status
             page.changeStatus(partner.status)
             break;
-        // case "setGameStage":
-        //     switch (body.gameStage) {
-        //         case "fillingField":
-        //             page.setFillingField(body.field)
-        //             break;
-
-        //         default:
-        //             break;
-        //     }
-        //     break;
+        case "setGameStage":
+            switch (body.gameStage) {
+                case "fillingField":
+                    page.setFillingField(body.field)
+                    break;
+                default:
+                    break;
+            }
+            break;
         default:
             break;
     }

@@ -25,7 +25,34 @@ wsServer.on("connection", ws => {
         gameStage: "connecting",
         partner: undefined,
         ws,
-        timeoutId: undefined
+        timeoutId: undefined,
+        setUser(userData) {
+            user = userData
+            user.ws = ws
+        },
+        send(data) {
+            this.ws.send(JSON.stringify(data))
+        },
+        setPartner(partner) {
+            this.partner = partner
+            this.partner.partner = this
+        },
+        removePartner() {
+            this.partner.partner = undefined
+            this.partner = undefined
+        },
+        sendPartner() {
+            this.send({
+                type: "setPartner",
+                partner: { login: this.partner.login, status: this.partner.status }
+            })
+        },
+        sendPartnerStatus() {
+            this.send({
+                type: "changeStatus",
+                status: this.partner.status
+            })
+        }
     }
     ws.on("message", message => {
         const ms = JSON.parse(message)
@@ -34,72 +61,51 @@ wsServer.on("connection", ws => {
                 const userData = usersData.getUserById(ms.id)
                 const tempUser = users.find(item => item.id === userData.id)
                 if (tempUser) {
-                    user = tempUser
+                    user.setUser(tempUser)
                     clearTimeout(user.timeoutId)
                     user.status = "connect"
-                    user.ws = ws
                 } else {
                     user.login = userData.login
                     user.id = userData.id
                     users.push(user)
                 }
                 if (user.partner) {
-                    ws.send(JSON.stringify({
-                        type: "setPartner",
-                        partner: { login: user.partner.login, status: user.partner.status }
-                    }))
-                    user.partner.ws.send(JSON.stringify({
-                        type: "changeStatus",
-                        status: "connect"
-                    }))
-                    ws.send(JSON.stringify({
-                        type: "acceptJoin",
-                    }))
+                    user.sendPartner()
+                    user.partner.sendPartnerStatus()
+                    user.send({ type: "acceptJoin" })
                 }
                 break;
             case "requestToJoin":
                 const partner = users.find(item => item.login === ms.login)
                 if (partner && partner.id !== user.id) {
-                    user.partner = partner
-                    partner.partner = user
-                    ws.send(JSON.stringify({
-                        type: "setPartner",
-                        partner: { login: user.partner.login, status: user.partner.status }
-                    }))
-                    partner.ws.send(JSON.stringify({
-                        type: "setPartner",
-                        partner: { login: user.login, status: user.status }
-                    }))
-                    partner.ws.send(JSON.stringify(
-                        {
-                            type: "requestToJoin"
-                        }
-                    ))
+                    user.setPartner(partner)
+                    user.sendPartner()
+                    partner.sendPartner()
+                    partner.send({ type: "requestToJoin" })
                 }
                 else
-                    ws.send(JSON.stringify({ type: "partnerIsNotFound" }))
+                    user.send({ type: "partnerIsNotFound" })
                 break;
             case "acceptJoin":
-                user.partner.ws.send(JSON.stringify({
-                    type: "acceptJoin"
-                }))
-                ws.send(JSON.stringify({
-                    type: "acceptJoin"
-                }))
+                user.partner.send({ type: "acceptJoin" })
+                user.send({ type: "acceptJoin" })
                 break;
             case "rejectJoin":
-                user.partner.ws.send(JSON.stringify({ type: "rejectJoin" }))
-                user.partner.partner = undefined
-                user.partner = undefined
+                user.partner.send({ type: "rejectJoin" })
+                user.removePartner()
                 break;
             case "disconnect":
-                user.partner.ws.send(JSON.stringify({ type: "disconnect" }))
-                user.partner.partner = undefined
-                user.partner = undefined
+                user.partner.send({ type: "disconnect" })
+                user.removePartner()
                 break;
             case "ready to play":
                 user.status = "readyPlay"
                 if (user.partner.status === "readyPlay") {
+                    user.status = "connect"
+                    user.partner.status = "connect"
+                    user.sendPartnerStatus()
+                    user.partner.sendPartnerStatus()
+
                     user.gameStage = "fillingField"
                     user.partner.gameStage = "fillingField"
                     user.field = new Field(10, 10)
@@ -115,23 +121,23 @@ wsServer.on("connection", ws => {
                             arrShipsLength.pop()
                         }
                     }
-                    ws.send(JSON.stringify({
+                    user.send({
                         type: "setGameStage",
                         gameStage: "fillingField",
                         field: user.field
-                    }))
-                    user.partner.ws.send(JSON.stringify({
+                    })
+                    user.partner.send({
                         type: "setGameStage",
                         gameStage: "fillingField",
                         field: user.partner.field
-                    }))
+                    })
                 }
                 else
-                    user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "readyPlay" }))
+                    user.partner.sendPartnerStatus()
                 break;
             case "not ready to play":
                 user.status = "connect"
-                user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "connect" }))
+                    user.partner.sendPartnerStatus()
                 break;
             default:
                 break;
@@ -140,12 +146,12 @@ wsServer.on("connection", ws => {
     ws.on("close", () => {
         if (user.partner) {
             user.status = "disconnect"
-            user.partner.ws.send(JSON.stringify({ type: "changeStatus", status: "disconnect" }))
+            user.partner.sendPartnerStatus()
             user.timeoutId = setTimeout(() => {
                 const index = users.findIndex(item => item.id === user.id)
                 if (index !== -1) {
-                    user.partner.ws.send(JSON.stringify({ type: "disconnect" }))
-                    user.partner.partner = undefined
+                    user.partner.send({ type: "disconnect" })
+                    user.removePartner()
                     users.splice(index, 1)
                 }
             }, 10000)
