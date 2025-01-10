@@ -44,8 +44,10 @@ class Field {
             ship.setShip(item)
             return ship
         })
-        this.arrShips.forEach(item => {
-            this.setShip(item, item.pointArray[0])
+        field.arr.forEach((item, index) => {
+            const point = new Point()
+            point.setIndex(index, this.n)
+            this.set(point, item)
         })
     }
     setShip(ship, centerPoint) {
@@ -117,6 +119,41 @@ class Field {
         const ship = this.deleteShip(point)
         ship.turn_clockwise()
         this.setShip(ship, point)
+    }
+    canShoot(point) {
+        return this.get(point) !== "destroyedShip" && this.get(point) !== "destroyedEmpty"
+    }
+    shoot(point, type) {
+        const shootToShip = () => {
+            const arrPoint = [new Point(1, 1), new Point(-1, 1), new Point(-1, -1), new Point(-1, 1)]
+            this.set(point, "destroyedShip")
+            arrPoint.forEach(item => {
+                const point1 = new Point(point.x + item.x, point.y + item.y)
+                this.set(point1, "destroyedEmpty")
+            })
+        }
+        const shootToEmpty = () => {
+            this.set(point, "destroyedEmpty")
+        }
+        switch (type) {
+            case "toShip":
+                shootToShip()
+                break;
+            case "toEmpty":
+                shootToEmpty()
+                break;
+            case undefined:
+                if (this.get(point) === "ship") {
+                    shootToShip()
+                    return "toShip"
+                }
+                else if (this.get(point) === "empty") {
+                    shootToEmpty()
+                    return "toEmpty"
+                }
+            default:
+                break;
+        }
     }
 }
 // const field = new Field(10, 10)

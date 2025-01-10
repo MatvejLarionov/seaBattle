@@ -117,8 +117,13 @@ webSocket.onmessage = (e) => {
         case "setGameStage":
             switch (body.gameStage) {
                 case "fillingField":
-                    // ready.innerText = "ready to play"
+                    const ready = document.getElementById("ready")
+                    if (ready !== null)
+                        ready.innerText = "ready to play"
                     page.setFillingField(body.field)
+                    break;
+                case "battle":
+                    page.setBattle(body.field, body.partnerField)
                     break;
                 default:
                     break;

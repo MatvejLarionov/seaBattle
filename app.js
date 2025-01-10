@@ -20,9 +20,10 @@ wsServer.on("connection", ws => {
         login: null,
         id: null,
         status: "connect",
-        field: undefined,
-        partnerField: undefined,
+        field: new Field(10, 10),
+        partnerField: new Field(10, 10),
         gameStage: "connecting",
+        isStep: false,
         partner: undefined,
         ws,
         timeoutId: undefined,
@@ -40,6 +41,11 @@ wsServer.on("connection", ws => {
         removePartner() {
             this.partner.partner = undefined
             this.partner = undefined
+        },
+        switchStep() {
+            const temp = this.isStep
+            this.isStep = this.partner.isStep
+            this.partner.isStep = temp
         },
         sendPartner() {
             this.send({
@@ -74,7 +80,13 @@ wsServer.on("connection", ws => {
                     user.partner.sendPartnerStatus()
                     const gameStageToType = {
                         connecting: { type: "acceptJoin" },
-                        fillingField: { type: "setGameStage", gameStage: user.gameStage, field: user.field }
+                        fillingField: { type: "setGameStage", gameStage: user.gameStage, field: user.field },
+                        battle: {
+                            type: "setGameStage",
+                            gameStage: user.gameStage,
+                            field: user.field,
+                            partnerField: user.partnerField
+                        }
                     }
                     user.send(gameStageToType[user.gameStage])
                 }
@@ -109,11 +121,27 @@ wsServer.on("connection", ws => {
                     user.partner.status = "connect"
                     user.sendPartnerStatus()
                     user.partner.sendPartnerStatus()
+                    if (user.gameStage === "fillingField") {
+                        user.gameStage = "battle"
+                        user.partner.gameStage = "battle"
+                        user.isStep = true
+                        user.send({
+                            type: "setGameStage",
+                            gameStage: "battle",
+                            field: user.field,
+                            partnerField: user.partnerField
+                        })
+                        user.partner.send({
+                            type: "setGameStage",
+                            gameStage: "battle",
+                            field: user.partner.field,
+                            partnerField: user.partner.partnerField
+                        })
+                        break;
+                    }
 
                     user.gameStage = "fillingField"
                     user.partner.gameStage = "fillingField"
-                    user.field = new Field(10, 10)
-                    user.partner.field = new Field(10, 10)
                     const arrShipsLength = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
                     for (let i = 0; i < user.field.length && arrShipsLength.length > 0; i++) {
                         const ship = new Ship(arrShipsLength.at(-1))
@@ -157,6 +185,19 @@ wsServer.on("connection", ws => {
                 point.setIndex(ms.index, user.field.n)
                 if (user.field.canTurn_clockwise(point)) {
                     user.field.turn_clockwise(point)
+                }
+                break;
+            case "shootPartner":
+                const point1 = new Point()
+                point1.setIndex(ms.index, user.partner.field.n)
+                if (user.isStep && user.partner.field.canShoot(point1)) {
+                    const shootType = user.partner.field.shoot(point1)
+                    user.partnerField.shoot(point1, shootType)
+                    if (shootType !== "toShip") {
+                        user.switchStep()
+                    }
+                    user.send({ type: "shootPartner", index: ms.index, shootType })
+                    user.partner.send({ type: "shootUser", index: ms.index })
                 }
                 break;
             default:

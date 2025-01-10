@@ -15,14 +15,17 @@
 .container1 {
     margin: 0 auto;
     border: 1px solid black;
-    max-width: 1000px;
+    max-width: 1500px;
 }
 
 .ava {
     width: 50px;
     border-radius: 100%;
 }
-
+.gameContainer{
+    display: flex;
+    justify-content: space-between;
+}
 .gameField {
     margin: 0 auto;
     width: calc(var(--n)*50px);

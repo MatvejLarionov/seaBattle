@@ -57,6 +57,30 @@ export const page = {
             })
             return el
         })(),
+        gameField: (() => {
+            const el = createElement({
+                tagName: "div", id: "gameField", className: "gameField"
+            })
+            return el
+        })(),
+        partnerGameField: (() => {
+            const el = createElement({
+                tagName: "div", id: "partnerGameField", className: "gameField"
+            })
+            return el
+        })(),
+        userGameContainer: (() => {
+            const el = createElement({
+                tagName: "div", id: "userGameContainer", className: "userGameContainer"
+            })
+            return el
+        })(),
+        partnerGameContainer: (() => {
+            const el = createElement({
+                tagName: "div", id: "partnerGameContainer", className: "partnerGameContainer"
+            })
+            return el
+        })(),
 
         dialogRequest: document.getElementById("dialogRequest"),
         dialogResponse: document.getElementById("dialogResponse")
@@ -109,10 +133,31 @@ export const page = {
     setFillingField(field) {
         this.container.innerText = ""
         this.components.gameContainer.innerHTML = ""
-        this.components.gameContainer.append(this.components.partnerContainer,
-            this.components.playContainer)
+        this.components.gameContainer.append(
+            this.components.partnerContainer,
+            this.components.playContainer,
+            this.components.gameField
+        )
         this.container.append(this.components.gameContainer)
         game.fillingField(field)
+    },
+    setBattle(field, partnerField) {
+        this.container.innerHTML = ""
+        this.components.gameContainer.innerHTML = ""
+        this.components.userGameContainer.append(
+            this.components.userContainer,
+            this.components.gameField
+        )
+        this.components.partnerGameContainer.append(
+            this.components.partnerContainer,
+            this.components.partnerGameField
+        )
+        this.components.gameContainer.append(
+            this.components.userGameContainer,
+            this.components.partnerGameContainer
+        )
+        this.container.append(this.components.gameContainer)
+        game.battle(field, partnerField)
     },
     changeStatus(status) {
         this.status.innerText = status
