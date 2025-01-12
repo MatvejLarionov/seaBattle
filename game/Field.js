@@ -50,8 +50,8 @@ class Field {
             this.set(point, item)
         })
     }
-    setShip(ship, centerPoint) {
-        ship.movToPoint(centerPoint)
+    setShip(ship, point, shipCenter) {
+        ship.movToPoint(point, shipCenter)
         this.arrShips.push(ship)
         ship.pointArray.forEach(item => {
             this.set(item, "ship")
@@ -71,9 +71,9 @@ class Field {
         if (index !== undefined)
             return this.arrShips[index]
     }
-    canSetShip(ship1, centerPoint, ignorShip = ship1) {
+    canSetShip(ship1, point, shipCenter, ignorShip = ship1) {
         const ship = ship1.copy()
-        ship.movToPoint(centerPoint)
+        ship.movToPoint(point, shipCenter)
         const pointArr = ship.pointArray
         const tempArr = [new Point(0, 0), new Point(1, 0), new Point(1, 1), new Point(0, 1), new Point(-1, 1),
         new Point(-1, 0), new Point(-1, -1), new Point(0, -1), new Point(1, -1),]
@@ -103,22 +103,22 @@ class Field {
     }
     canMovShip(oldPoint, newPoint) {
         const ship = this.getShip(oldPoint)
-        return this.canSetShip(ship, newPoint)
+        return this.canSetShip(ship, newPoint, oldPoint)
     }
     movShip(oldPoint, newPoint) {
         const ship = this.deleteShip(oldPoint)
         if (ship)
-            this.setShip(ship, newPoint)
+            this.setShip(ship, newPoint, oldPoint)
     }
     canTurn_clockwise(point) {
         const ship = this.getShip(point).copy()
-        ship.turn_clockwise()
-        return this.canSetShip(ship, point, this.getShip(point))
+        ship.turn_clockwise(point)
+        return this.canSetShip(ship, point, point, this.getShip(point))
     }
     turn_clockwise(point) {
         const ship = this.deleteShip(point)
-        ship.turn_clockwise()
-        this.setShip(ship, point)
+        ship.turn_clockwise(point)
+        this.setShip(ship, point, point)
     }
     canShoot(point) {
         return this.get(point) !== "destroyedShip" && this.get(point) !== "destroyedEmpty"

@@ -46,6 +46,11 @@ export const game = {
                 isMove = false
                 const newIndex = event.target.dataset.index
                 if (newIndex !== oldIndex) {
+                    const oldPoint = new Point()
+                    oldPoint.setIndex(oldIndex, this.field.n)
+
+                    const newPoint = new Point()
+                    newPoint.setIndex(newIndex, this.field.n)
                     if (this.field.canMovShip(oldPoint, newPoint)) {
                         this.webSocket.send(JSON.stringify({
                             type: "movShip",
