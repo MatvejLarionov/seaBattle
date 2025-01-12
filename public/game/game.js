@@ -1,12 +1,69 @@
 import { Field } from "./Field.js"
 import { Point } from "./Point.js"
 
+let isMoving = false, isMoveHappen = false, oldIndex = -1
+
 export const game = {
     field: new Field(10, 10),
     partnerField: new Field(10, 10),
     webSocket: null,
     setWebSocket(webSocket) {
         this.webSocket = webSocket
+    },
+    movShip(newIndex) {
+        const oldPoint = new Point(), newPoint = new Point()
+        oldPoint.setIndex(oldIndex, this.field.n)
+        newPoint.setIndex(newIndex, this.field.n)
+
+        if (this.field.canMovShip(oldPoint, newPoint)) {
+            this.webSocket.send(JSON.stringify({
+                type: "movShip",
+                oldIndex,
+                newIndex
+            }))
+            this.field.movShip(oldPoint, newPoint)
+            oldIndex = newIndex
+        }
+    },
+    turnShip(index) {
+        const point = new Point()
+        point.setIndex(index, this.field.n)
+        if (this.field.canTurn_clockwise(point)) {
+            this.webSocket.send(JSON.stringify({
+                type: "turn_clockwise",
+                index: index
+            }))
+            this.field.turn_clockwise(point)
+        }
+    },
+    movigShip(event) {
+        const newIndex = event.target.dataset.index
+        if (newIndex !== oldIndex) {
+            isMoveHappen = true
+            this.movShip(newIndex)
+        }
+    },
+    translateShip(event) {
+        const index = event.target.dataset.index
+        const point = new Point()
+        point.setIndex(index, this.field.n)
+        if (isMoving) {
+            gameField.removeEventListener("mousemove", this.movigShip)
+            isMoving = false
+            if (!isMoveHappen) {
+                if (index === oldIndex)
+                    this.turnShip(index)
+                else
+                    this.movShip(index)
+            }
+        } else {
+            if (this.field.getShip(point)) {
+                oldIndex = index
+                isMoving = true
+                isMoveHappen = false
+                gameField.addEventListener("mousemove", this.movigShip)
+            }
+        }
     },
     fillingField(field) {
         const container = document.getElementById("container")
@@ -15,74 +72,7 @@ export const game = {
 
         this.field.setField(field)
 
-        let oldIndex;
-
-        const movShip = (event) => {
-            const newIndex = event.target.dataset.index
-            if (newIndex !== oldIndex) {
-                const oldPoint = new Point()
-                oldPoint.setIndex(oldIndex, this.field.n)
-
-                const newPoint = new Point()
-                newPoint.setIndex(newIndex, this.field.n)
-
-
-                if (this.field.canMovShip(oldPoint, newPoint)) {
-                    this.webSocket.send(JSON.stringify({
-                        type: "movShip",
-                        oldIndex,
-                        newIndex
-                    }))
-                    this.field.movShip(oldPoint, newPoint)
-                    oldIndex = newIndex
-                }
-
-            }
-        }
-        let isMove = false
-        gameField.addEventListener("click", (event) => {
-            if (isMove) {
-                gameField.removeEventListener("mousemove", movShip)
-                isMove = false
-                const newIndex = event.target.dataset.index
-                if (newIndex !== oldIndex) {
-                    const oldPoint = new Point()
-                    oldPoint.setIndex(oldIndex, this.field.n)
-
-                    const newPoint = new Point()
-                    newPoint.setIndex(newIndex, this.field.n)
-                    if (this.field.canMovShip(oldPoint, newPoint)) {
-                        this.webSocket.send(JSON.stringify({
-                            type: "movShip",
-                            oldIndex,
-                            newIndex
-                        }))
-                        this.field.movShip(oldPoint, newPoint)
-                        oldIndex = newIndex
-                    }
-                }
-            } else {
-                oldIndex = event.target.dataset.index
-                const point = new Point()
-                point.setIndex(oldIndex, this.field.n)
-                if (this.field.getShip(point)) {
-                    gameField.addEventListener("mousemove", movShip)
-                    isMove = true
-                }
-            }
-        })
-        gameField.addEventListener("dblclick", (event) => {
-            const point = new Point()
-            point.setIndex(event.target.dataset.index, this.field.n)
-
-            if (this.field.canTurn_clockwise(point)) {
-                this.webSocket.send(JSON.stringify({
-                    type: "turn_clockwise",
-                    index: event.target.dataset.index
-                }))
-                this.field.turn_clockwise(point)
-            }
-        })
+        gameField.addEventListener("click", this.translateShip)
 
         this.field.elements.forEach((item, index) => {
             item.dataset.index = index
@@ -142,3 +132,5 @@ export const game = {
         })
     }
 }
+game.movigShip = game.movigShip.bind(game)
+game.translateShip = game.translateShip.bind(game)
