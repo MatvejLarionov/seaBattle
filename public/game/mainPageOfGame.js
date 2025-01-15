@@ -70,8 +70,12 @@ const eventListners = {
     ready: {
         type: "click",
         callback: () => {
+            const obj = {
+                "ready to play": "readyToPlay",
+                "not ready to play" : "notReadyToPlay"
+            }
             webSocket.send(JSON.stringify({
-                type: ready.innerText
+                type: obj[ready.innerText]
             }))
             if (ready.innerText === "ready to play")
                 ready.innerText = "not ready to play"
