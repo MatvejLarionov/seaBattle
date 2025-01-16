@@ -123,37 +123,54 @@ class Field {
     canShoot(point) {
         return this.get(point) !== "destroyedShip" && this.get(point) !== "destroyedEmpty"
     }
-    shoot(point, type) {
-        const shootToShip = () => {
-            const arrPoint = [new Point(1, 1), new Point(-1, 1), new Point(-1, -1), new Point(-1, 1)]
+    shoot(point) {
+        const changeField = {}
+        let type = "toEmpty"
+        if (this.get(point) === "ship") {
+            type = "toShip"
+            const arrPoint = [
+                new Point(1, 1),
+                new Point(-1, 1),
+                new Point(-1, -1),
+                new Point(1, -1)
+            ]
             this.set(point, "destroyedShip")
+            changeField[point.getIndex(this.n)] = "destroyedShip"
+
             arrPoint.forEach(item => {
                 const point1 = new Point(point.x + item.x, point.y + item.y)
-                this.set(point1, "destroyedEmpty")
+                if (this.set(point1, "destroyedEmpty"))
+                    changeField[point1.getIndex(this.n)] = "destroyedEmpty"
             })
+
+            const ship = this.getShip(point)
+            if (!ship.pointArray.find(item => this.get(item) === "ship")) {
+                const arrPoint1 = [
+                    new Point(1, 0),
+                    new Point(1, 1),
+                    new Point(0, 1),
+                    new Point(-1, 1),
+                    new Point(-1, 0),
+                    new Point(-1, -1),
+                    new Point(0, -1),
+                    new Point(1, -1)
+                ]
+                ship.pointArray.forEach(item => {
+                    arrPoint1.forEach(i => {
+                        const point1 = new Point(item.x + i.x, item.y + i.y)
+                        if (this.get(point1) !== "destroyedShip") {
+                            if (this.set(point1, "destroyedEmpty"))
+                                changeField[point1.getIndex(this.n)] = "destroyedEmpty"
+                        }
+                    })
+                })
+            }
         }
-        const shootToEmpty = () => {
+        else if (this.get(point) === "empty") {
             this.set(point, "destroyedEmpty")
+            changeField[point.getIndex(this.n)] = "destroyedEmpty"
         }
-        switch (type) {
-            case "toShip":
-                shootToShip()
-                break;
-            case "toEmpty":
-                shootToEmpty()
-                break;
-            case undefined:
-                if (this.get(point) === "ship") {
-                    shootToShip()
-                    return "toShip"
-                }
-                else if (this.get(point) === "empty") {
-                    shootToEmpty()
-                    return "toEmpty"
-                }
-            default:
-                break;
-        }
+        return { type, changeField }
     }
 }
 // const field = new Field(10, 10)

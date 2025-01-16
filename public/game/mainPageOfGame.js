@@ -72,7 +72,7 @@ const eventListners = {
         callback: () => {
             const obj = {
                 "ready to play": "readyToPlay",
-                "not ready to play" : "notReadyToPlay"
+                "not ready to play": "notReadyToPlay"
             }
             webSocket.send(JSON.stringify({
                 type: obj[ready.innerText]
@@ -132,6 +132,12 @@ webSocket.onmessage = (e) => {
                 default:
                     break;
             }
+            break;
+        case "setOnField":
+            game.setOnField(body.data)
+            break;
+        case "setOnPartnerField":
+            game.setOnPartnerField(body.data)
             break;
         default:
             break;

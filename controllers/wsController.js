@@ -101,16 +101,19 @@ const wsController = {
         }
     },
     shootPartner(user, ms) {
-        const point1 = new Point()
-        point1.setIndex(ms.index, user.partner.field.n)
-        if (user.isStep && user.partner.field.canShoot(point1)) {
-            const shootType = user.partner.field.shoot(point1)
-            user.partnerField.shoot(point1, shootType)
-            if (shootType !== "toShip") {
+        const point = new Point()
+        point.setIndex(ms.index, user.partner.field.n)
+        if (user.isStep && user.partner.field.canShoot(point)) {
+            const shootResult = user.partner.field.shoot(point)
+            for (const key in shootResult.changeField) {
+                point.setIndex(key, user.partnerField.n)
+                user.partnerField.set(point, shootResult.changeField[key])
+            }
+            if (shootResult.type !== "toShip") {
                 user.switchStep()
             }
-            user.send({ type: "shootPartner", index: ms.index, shootType })
-            user.partner.send({ type: "shootUser", index: ms.index })
+            user.send({ type: "setOnPartnerField", data: shootResult.changeField })
+            user.partner.send({ type: "setOnField", data: shootResult.changeField })
         }
     },
     close(user) {

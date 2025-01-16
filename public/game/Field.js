@@ -137,38 +137,6 @@ export class Field {
     canShoot(point) {
         return this.get(point) !== "destroyedShip" && this.get(point) !== "destroyedEmpty"
     }
-    shoot(point, type) {
-        const shootToShip = () => {
-            const arrPoint = [new Point(1, 1), new Point(-1, 1), new Point(-1, -1), new Point(-1, 1)]
-            this.set(point, "destroyedShip")
-            arrPoint.forEach(item => {
-                const point1 = new Point(point.x + item.x, point.y + item.y)
-                this.set(point1, "destroyedEmpty")
-            })
-        }
-        const shootToEmpty = () => {
-            this.set(point, "destroyedEmpty")
-        }
-        switch (type) {
-            case "toShip":
-                shootToShip()
-                break;
-            case "toEmpty":
-                shootToEmpty()
-                break;
-            case undefined:
-                if (this.get(point) === "ship") {
-                    shootToShip()
-                    return "toShip"
-                }
-                else if (this.get(point) === "empty") {
-                    shootToEmpty()
-                    return "toEmpty"
-                }
-            default:
-                break;
-        }
-    }
 }
 // const field = new Field(10, 10)
 // const ship = new Ship(3)

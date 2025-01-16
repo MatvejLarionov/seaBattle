@@ -65,6 +65,20 @@ export const game = {
             }
         }
     },
+    setOnField(data) {
+        const point = new Point()
+        for (const key in data) {
+            point.setIndex(key, this.field.n)
+            this.field.set(point, data[key])
+        }
+    },
+    setOnPartnerField(data) {
+        const point = new Point()
+        for (const key in data) {
+            point.setIndex(key, this.partnerField.n)
+            this.partnerField.set(point, data[key])
+        }
+    },
     fillingField(field) {
         const container = document.getElementById("container")
         container.className = "container1"
@@ -86,6 +100,7 @@ export const game = {
         const partnerGameField = document.getElementById("partnerGameField")
         this.field.setField(field)
         this.partnerField.setField(partnerField)
+        gameField.removeEventListener("click", this.translateShip)
 
         partnerGameField.addEventListener("click", (event) => {
             const index = event.target.dataset.index
@@ -99,28 +114,7 @@ export const game = {
                 }))
             }
         })
-        this.webSocket.onmessage = (e) => {
-            const body = JSON.parse(e.data)
-            switch (body.type) {
-                case "shootPartner":
-                    const point = new Point()
-                    point.setIndex(body.index, this.partnerField.n)
-                    if (this.partnerField.canShoot(point)) {
-                        this.partnerField.shoot(point, body.shootType)
-                    }
-                    break;
-                case "shootUser":
-                    const point1 = new Point()
-                    point1.setIndex(body.index, this.field.n)
-                    if (this.field.canShoot(point1)) {
-                        this.field.shoot(point1)
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-        }
+        
         gameField.innerHTML = ""
         this.field.elements.forEach((item, index) => {
             item.dataset.index = index
