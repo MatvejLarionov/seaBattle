@@ -1,6 +1,7 @@
 :root {
     --n: 10;
     --m: 10;
+    --cellSize: 4vw;
 }
 
 .container {
@@ -27,12 +28,12 @@
     justify-content: space-between;
 }
 .gameField {
-    margin: 0 auto;
-    width: calc(var(--n)*50px);
-    height: calc((var(--m)*50px));
+    margin: 0 0 10px 0;
+    width: calc(var(--n)*var(--cellSize));
+    height: calc((var(--m)*var(--cellSize)));
     display: grid;
-    grid-template-columns: repeat(var(--n), 50px);
-    grid-template-rows: repeat(var(--m), 50px);
+    grid-template-columns: repeat(var(--n), var(--cellSize));
+    grid-template-rows: repeat(var(--m), var(--cellSize));
 }
 
 .gameField>div {
@@ -63,9 +64,25 @@
     transform: scale(1.5);
     transition: 0.2s;
 }
+.userGameContainer,
+.partnerGameContainer{
+    display: flex;
+    justify-content: space-between;
+}
 
 #step{
     font-size: 20px;
     font-weight: 700;
     color:  blue;
+}
+@media screen and (max-width : 100vh) {
+    :root{
+        --cellSize:6vw;
+    }
+    .gameContainer{
+        flex-direction: column;
+    }
+    .userGameContainer{
+        order: 1;
+    }
 }
