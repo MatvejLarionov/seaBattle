@@ -68,12 +68,21 @@ const wsRouter = ws => {
                     type: "setGameStage",
                     gameStage: this.gameStage,
                     field: this.field,
-                    partnerField: this.partnerField
+                    partnerField: this.partnerField,
+                    isStep: this.isStep
                 }
             }
             this.send(gameStageToType[this.gameStage])
             if (isSendToPartner)
                 this.partner.sendDataByGameStage()
+        },
+        sendStep(isSendToPartner = false) {
+            this.send({
+                type: "setStep",
+                isStep: this.isStep
+            })
+            if (isSendToPartner)
+                this.partner.sendStep()
         }
     }
     ws.on("message", message => {

@@ -21,7 +21,8 @@ export const page = {
             })
             el.innerHTML =
                 `<img src="/img/ava.jpg" alt="ava" class="ava" id="ava">
-            <p class="login" id="login"></p>`
+            <p class="login" id="login"></p>
+            <p id="step"></p>`
             return el
         })(),
         partnerContainer: (() => {
@@ -30,7 +31,8 @@ export const page = {
             })
             el.innerHTML =
                 `<p>подключён к <span id="partnerLogin"></span></p>
-            <p>статус <span id="status"></span></p>`
+            <p>статус <span id="status"></span></p>
+            <p id="step"></p>`
             return el
         })(),
         form: (() => {
@@ -142,7 +144,7 @@ export const page = {
         this.container.append(this.components.gameContainer)
         game.fillingField(field)
     },
-    setBattle(field, partnerField) {
+    setBattle(field, partnerField, isStep) {
         this.container.innerHTML = ""
         this.components.gameContainer.innerHTML = ""
         this.components.userGameContainer.append(
@@ -158,7 +160,13 @@ export const page = {
             this.components.partnerGameContainer
         )
         this.container.append(this.components.gameContainer)
+        this.setStep(isStep)
         game.battle(field, partnerField)
+    },
+    setStep(isStep) {
+        const temp = ["ждёт", "ходит"]
+        this.components.userContainer.querySelector("#step").innerText = temp[Number(isStep)]
+        this.components.partnerContainer.querySelector("#step").innerText = temp[Number(!isStep)]
     },
     changeStatus(status) {
         this.status.innerText = status

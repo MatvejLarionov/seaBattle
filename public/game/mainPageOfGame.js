@@ -133,7 +133,7 @@ webSocket.onmessage = (e) => {
                     page.setFillingField(body.field)
                     break;
                 case "battle":
-                    page.setBattle(body.field, body.partnerField)
+                    page.setBattle(body.field, body.partnerField, body.isStep)
                     break;
                 default:
                     break;
@@ -144,6 +144,9 @@ webSocket.onmessage = (e) => {
             break;
         case "setOnPartnerField":
             game.setOnPartnerField(body.data)
+            break;
+        case "setStep":
+            page.setStep(body.isStep)
             break;
         case "endGame":
             page.openDialogEndGame(body.isWin ? user.login : partner.login)

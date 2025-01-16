@@ -63,3 +63,9 @@
     transform: scale(1.5);
     transition: 0.2s;
 }
+
+#step{
+    font-size: 20px;
+    font-weight: 700;
+    color:  blue;
+}

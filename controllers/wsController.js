@@ -112,8 +112,10 @@ const wsController = {
                 point.setIndex(key, user.partnerField.n)
                 user.partnerField.set(point, shootResult.changeField[key])
             }
-            if (shootResult.type === "toEmpty")
+            if (shootResult.type === "toEmpty") {
                 user.switchStep()
+                user.sendStep(true)
+            }
             else if (shootResult.type === "shipIsDead")
                 user.partner.countOfDestShip++
             user.send({ type: "setOnPartnerField", data: shootResult.changeField })
