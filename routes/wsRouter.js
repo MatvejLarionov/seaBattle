@@ -9,6 +9,7 @@ const wsRouter = ws => {
         status: "connect",
         field: new Field(10, 10),
         partnerField: new Field(10, 10),
+        countOfDestShip: 0,
         gameStage: "connecting",
         isStep: false,
         partner: undefined,
@@ -37,6 +38,12 @@ const wsRouter = ws => {
             const temp = this.isStep
             this.isStep = this.partner.isStep
             this.partner.isStep = temp
+        },
+        resetGame() {
+            this.field = new Field(10, 10)
+            this.partnerField = new Field(10, 10)
+            this.countOfDestShip = 0
+            this.isStep = false
         },
         send(data) {
             this.ws.send(JSON.stringify(data))

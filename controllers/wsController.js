@@ -26,7 +26,7 @@ const wsController = {
     },
     requestToJoin(user, ms) {
         const partner = users.find(item => item.login === ms.login)
-        if (partner && partner.id !== user.id) {
+        if (partner && partner.id !== user.id && !partner.partner) {
             user.setPartner(partner)
             user.sendPartner()
             partner.sendPartner()
@@ -62,6 +62,8 @@ const wsController = {
                 return;
             }
 
+            user.resetGame()
+            user.partner.resetGame()
             const arrShipsLength = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
             for (let i = 0; i < user.field.length && arrShipsLength.length > 0; i++) {
                 const ship = new Ship(arrShipsLength.at(-1))
@@ -101,6 +103,7 @@ const wsController = {
         }
     },
     shootPartner(user, ms) {
+        const countOfShips = user.field.arrShips.length
         const point = new Point()
         point.setIndex(ms.index, user.partner.field.n)
         if (user.isStep && user.partner.field.canShoot(point)) {
@@ -109,11 +112,19 @@ const wsController = {
                 point.setIndex(key, user.partnerField.n)
                 user.partnerField.set(point, shootResult.changeField[key])
             }
-            if (shootResult.type !== "toShip") {
+            if (shootResult.type === "toEmpty")
                 user.switchStep()
-            }
+            else if (shootResult.type === "shipIsDead")
+                user.partner.countOfDestShip++
             user.send({ type: "setOnPartnerField", data: shootResult.changeField })
             user.partner.send({ type: "setOnField", data: shootResult.changeField })
+
+            if (user.partner.countOfDestShip >= countOfShips) {
+                user.send({ type: "endGame", isWin: true })
+                user.partner.send({ type: "endGame", isWin: false })
+                user.setGameStage("connecting")
+                user.partner.setGameStage("connecting")
+            }
         }
     },
     close(user) {

@@ -145,6 +145,7 @@ class Field {
 
             const ship = this.getShip(point)
             if (!ship.pointArray.find(item => this.get(item) === "ship")) {
+                type = "shipIsDead"
                 const arrPoint1 = [
                     new Point(1, 0),
                     new Point(1, 1),

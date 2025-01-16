@@ -82,6 +82,12 @@ const eventListners = {
             else
                 ready.innerText = "ready to play"
         }
+    },
+    btnEndGame: {
+        type: "click",
+        callback: () => {
+            location.reload()
+        }
     }
 }
 for (const key in eventListners) {
@@ -138,6 +144,9 @@ webSocket.onmessage = (e) => {
             break;
         case "setOnPartnerField":
             game.setOnPartnerField(body.data)
+            break;
+        case "endGame":
+            page.openDialogEndGame(body.isWin ? user.login : partner.login)
             break;
         default:
             break;

@@ -83,7 +83,8 @@ export const page = {
         })(),
 
         dialogRequest: document.getElementById("dialogRequest"),
-        dialogResponse: document.getElementById("dialogResponse")
+        dialogResponse: document.getElementById("dialogResponse"),
+        dialogEndGame: document.getElementById("dialogEndGame")
     },
 
     get userLogin() {
@@ -169,5 +170,9 @@ export const page = {
     openDialogResponse(text) {
         document.getElementById("text").innerText = text
         this.components.dialogResponse.showModal()
+    },
+    openDialogEndGame(partner) {
+        this.components.dialogEndGame.querySelector("#gamer").innerText = partner
+        this.components.dialogEndGame.showModal()
     }
 }
