@@ -71,16 +71,16 @@ const eventListners = {
         type: "click",
         callback: () => {
             const obj = {
-                "ready to play": "readyToPlay",
-                "not ready to play": "notReadyToPlay"
+                "готов к игре": "readyToPlay",
+                "не готов к игре": "notReadyToPlay"
             }
             webSocket.send(JSON.stringify({
                 type: obj[ready.innerText]
             }))
-            if (ready.innerText === "ready to play")
-                ready.innerText = "not ready to play"
+            if (ready.innerText === "готов к игре")
+                ready.innerText = "не готов к игре"
             else
-                ready.innerText = "ready to play"
+                ready.innerText = "готов к игре"
         }
     },
     btnEndGame: {
@@ -129,7 +129,7 @@ webSocket.onmessage = (e) => {
                 case "fillingField":
                     const ready = document.getElementById("ready")
                     if (ready !== null)
-                        ready.innerText = "ready to play"
+                        ready.innerText = "готов к игре"
                     page.setFillingField(body.field)
                     break;
                 case "battle":

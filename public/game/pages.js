@@ -41,7 +41,7 @@ export const page = {
             })
             el.innerHTML =
                 `<input type="text" placeholder="partner login" id="inpLogin">
-            <button id="btnRequestToJoin">запросить присоедениться</button>`
+            <button id="btnRequestToJoin">запросить присоединиться</button>`
             return el
         })(),
         playContainer: (() => {
@@ -49,8 +49,8 @@ export const page = {
                 tagName: "div", id: "playContainer"
             })
             el.innerHTML =
-                `<button id="ready">ready to play</button>
-            <button id="disconnection">отключится</button>`
+                `<button id="ready">готов к игре</button>
+            <button id="disconnection">отключиться</button>`
             return el
         })(),
         gameContainer: (() => {
