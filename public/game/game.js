@@ -88,6 +88,7 @@ export const game = {
 
         gameField.addEventListener("click", this.translateShip)
 
+        gameField.innerHTML = ""
         this.field.elements.forEach((item, index) => {
             item.dataset.index = index
             gameField.append(item)
@@ -116,6 +117,7 @@ export const game = {
         })
         
         gameField.innerHTML = ""
+        partnerGameField.innerHTML = ""
         this.field.elements.forEach((item, index) => {
             item.dataset.index = index
             gameField.append(item)

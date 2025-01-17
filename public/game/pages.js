@@ -122,6 +122,7 @@ export const page = {
     },
     setConnectingPage(user) {
         this.container.innerHTML = ""
+        this.container.className = "container"
         this.container.append(this.components.userContainer, this.components.form)
         this.userLogin.innerText = user.login
     },

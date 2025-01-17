@@ -31,6 +31,8 @@ const wsRouter = ws => {
             this.partner.partner = this
         },
         removePartner() {
+            this.partner.setGameStage("connecting")
+            this.setGameStage("connecting")
             this.partner.partner = undefined
             this.partner = undefined
         },

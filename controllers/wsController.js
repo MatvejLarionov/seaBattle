@@ -57,7 +57,10 @@ const wsController = {
             if (user.gameStage === "fillingField") {
                 user.setGameStage("battle")
                 user.partner.setGameStage("battle")
-                user.isStep = true
+                if (Math.floor(Math.random() * 100) % 2 === 0)
+                    user.isStep = true
+                else
+                    user.partner.isStep = true
                 user.sendDataByGameStage(true)
                 return;
             }
@@ -87,6 +90,8 @@ const wsController = {
         user.partner.sendPartnerStatus()
     },
     movShip(user, ms) {
+        if (user.gameStage !== "fillingField")
+            return
         const oldPoint = new Point()
         oldPoint.setIndex(ms.oldIndex, user.field.n)
         const newPoint = new Point()
@@ -96,6 +101,8 @@ const wsController = {
         }
     },
     turn_clockwise(user, ms) {
+        if (user.gameStage !== "fillingField")
+            return
         const point = new Point()
         point.setIndex(ms.index, user.field.n)
         if (user.field.canTurn_clockwise(point)) {
@@ -103,6 +110,8 @@ const wsController = {
         }
     },
     shootPartner(user, ms) {
+        if (user.gameStage !== "battle")
+            return
         const countOfShips = user.field.arrShips.length
         const point = new Point()
         point.setIndex(ms.index, user.partner.field.n)
@@ -136,8 +145,10 @@ const wsController = {
             user.timeoutId = setTimeout(() => {
                 const index = users.findIndex(item => item.id === user.id)
                 if (index !== -1) {
-                    user.partner.send({ type: "disconnect" })
-                    user.removePartner()
+                    if (user.partner) {
+                        user.partner.send({ type: "disconnect" })
+                        user.removePartner()
+                    }
                     users.splice(index, 1)
                 }
             }, 10000)
