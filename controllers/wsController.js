@@ -145,19 +145,15 @@ const wsController = {
     close(user) {
         if (user.partner) {
             user.setStatus("disconnect")
-            if (user.partner.status === "disconnect") {
-                clearTimeout(user.partner.timeoutId)
-                deleteUser(user.partner)
-                deleteUser(user)
-                return
-            }
             user.partner.sendPartnerStatus()
             user.timeoutId = setTimeout(() => {
-                if (user.gameStage === "battle")
-                    user.partner.send({ type: "endGame", isWin: true })
-                else
-                    user.partner.send({ type: "disconnect" })
-                user.removePartner()
+                if (user.partner) {
+                    if (user.gameStage === "battle")
+                        user.partner.send({ type: "endGame", isWin: true })
+                    else
+                        user.partner.send({ type: "disconnect" })
+                    user.removePartner()
+                }
                 deleteUser(user)
             }, 10000)
         } else
