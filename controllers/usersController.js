@@ -38,8 +38,12 @@ const usersController = {
         res.json(user)
     },
     patchUser(req, res) {
-        req.body.login = req.body.login.trim()
-        req.body.password = req.body.password.trim()
+        if (req.body.login)
+            req.body.login = req.body.login.trim()
+        if(req.body.password)
+            req.body.password = req.body.password.trim()
+        if(req.body.oldPassword)
+            req.body.oldPassword = req.body.oldPassword.trim()
 
         const id = req.params.id
         const error = usersData.update(id, req.body)
