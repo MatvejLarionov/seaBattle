@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/game.css">
+    <script src="./mainPageOfGame.js" type="module" defer></script>
+    <title>Sea Battle</title>
+</head>
+
+<body>
+    <div id="container" class="container"></div>
+    
+    <dialog id="dialogRequest">
+        <p>Игрок <span id="partnerLoginInDialog"></span> хочет присоединиться</p>
+        <button id="accept">принять</button>
+        <button id="reject">отклонить</button>
+    </dialog>
+    <dialog id="dialogResponse">
+        <p>Игрок <span id="text"></span></p>
+        <button id="btnClose">закрыть</button>
+    </dialog>
+    <dialog id="dialogEndGame">
+        <p>Игрок <span id="gamer"></span> победил</p>
+        <button id="btnEndGame">закрыть</button>
+    </dialog>
+</body>
+
+</html>
