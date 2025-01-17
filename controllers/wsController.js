@@ -110,7 +110,7 @@ const wsController = {
         }
     },
     shootPartner(user, ms) {
-        if (user.gameStage !== "battle")
+        if (user.gameStage !== "battle" || ms.index===undefined)
             return
         const countOfShips = user.field.arrShips.length
         const point = new Point()
