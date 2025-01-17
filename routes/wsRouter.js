@@ -89,7 +89,11 @@ const wsRouter = ws => {
     }
     ws.on("message", message => {
         const ms = JSON.parse(message)
-        wsController[ms.type](user, ms)
+        try {
+            wsController[ms.type](user, ms)
+        } catch (error) {
+            console.log(error)
+        }
     })
     ws.on("close", () => {
         wsController.close(user)

@@ -4,7 +4,11 @@ const Ship = require("../game/Ship.js")
 const Point = require("../game/Point.js")
 
 const users = []
-
+const deleteUser = (user) => {
+    const index = users.findIndex(item => item.id === user.id)
+    if (index !== -1)
+        users.splice(index, 1)
+}
 const wsController = {
     authorization(user, ms) {
         const userData = usersData.getUserById(ms.id)
@@ -110,7 +114,7 @@ const wsController = {
         }
     },
     shootPartner(user, ms) {
-        if (user.gameStage !== "battle" || ms.index===undefined)
+        if (user.gameStage !== "battle" || ms.index === undefined)
             return
         const countOfShips = user.field.arrShips.length
         const point = new Point()
@@ -141,22 +145,23 @@ const wsController = {
     close(user) {
         if (user.partner) {
             user.setStatus("disconnect")
+            if (user.partner.status === "disconnect") {
+                clearTimeout(user.partner.timeoutId)
+                deleteUser(user.partner)
+                deleteUser(user)
+                return
+            }
             user.partner.sendPartnerStatus()
             user.timeoutId = setTimeout(() => {
-                const index = users.findIndex(item => item.id === user.id)
-                if (index !== -1) {
-                    if (user.partner) {
-                        user.partner.send({ type: "disconnect" })
-                        user.removePartner()
-                    }
-                    users.splice(index, 1)
-                }
+                if (user.gameStage === "battle")
+                    user.partner.send({ type: "endGame", isWin: true })
+                else
+                    user.partner.send({ type: "disconnect" })
+                user.removePartner()
+                deleteUser(user)
             }, 10000)
-        } else {
-            const index = users.findIndex(item => item.id === user.id)
-            if (index !== -1)
-                users.splice(index, 1)
-        }
+        } else
+            deleteUser(user)
     }
 }
 
